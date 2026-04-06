@@ -1,47 +1,47 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Cliente, Producto, Tiempo, Hecho, KPICalculado } from '@/types';
-import { calcularKPIs, obtenerDatosGraficoVentasPorFecha, obtenerDatosGraficoVentasPorCliente, obtenerDatosGraficoVentasPorProducto } from '@/lib/kpis/calculator';
+import type { Customer, Product, Time, Sale, CalculatedKPI } from '@/types';
+import { calculateKPIs, getSalesByDateChartData, getSalesByCustomerChartData, getSalesByProductChartData } from '@/lib/kpis/calculator';
 
 interface DashboardState {
-  // Datos cargados
-  clientes: Cliente[];
-  productos: Producto[];
-  tiempos: Tiempo[];
-  hechos: Hecho[];
+  // Loaded data
+  customers: Customer[];
+  products: Product[];
+  times: Time[];
+  sales: Sale[];
   
-  // KPIs calculados
-  kpis: KPICalculado[];
+  // Calculated KPIs
+  kpis: CalculatedKPI[];
   
-  // Datos para gráficos
-  ventasPorFecha: { fecha: string; ventas: number; costos: number; margen: number }[];
-  ventasPorCliente: { name: string; value: number }[];
-  ventasPorProducto: { name: string; value: number }[];
+  // Chart data
+  salesByDate: { date: string; sales: number; costs: number; margin: number }[];
+  salesByCustomer: { name: string; value: number }[];
+  salesByProduct: { name: string; value: number }[];
   
-  // Estado de carga
+  // Loading state
   isLoading: boolean;
   error: string | null;
   
-  // Acciones
-  setClientes: (clientes: Cliente[]) => void;
-  setProductos: (productos: Producto[]) => void;
-  setTiempos: (tiempos: Tiempo[]) => void;
-  setHechos: (hechos: Hecho[]) => void;
-  calcularTodo: () => void;
+  // Actions
+  setCustomers: (customers: Customer[]) => void;
+  setProducts: (products: Product[]) => void;
+  setTimes: (times: Time[]) => void;
+  setSales: (sales: Sale[]) => void;
+  calculateAll: () => void;
   reset: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
 }
 
 const initialState = {
-  clientes: [],
-  productos: [],
-  tiempos: [],
-  hechos: [],
+  customers: [],
+  products: [],
+  times: [],
+  sales: [],
   kpis: [],
-  ventasPorFecha: [],
-  ventasPorCliente: [],
-  ventasPorProducto: [],
+  salesByDate: [],
+  salesByCustomer: [],
+  salesByProduct: [],
   isLoading: false,
   error: null,
 };
@@ -51,45 +51,45 @@ export const useDashboardStore = create<DashboardState>()(
     (set, get) => ({
       ...initialState,
       
-      setClientes: (clientes) => {
-        set({ clientes });
-        get().calcularTodo();
+      setCustomers: (customers) => {
+        set({ customers });
+        get().calculateAll();
       },
       
-      setProductos: (productos) => {
-        set({ productos });
-        get().calcularTodo();
+      setProducts: (products) => {
+        set({ products });
+        get().calculateAll();
       },
       
-      setTiempos: (tiempos) => {
-        set({ tiempos });
+      setTimes: (times) => {
+        set({ times });
       },
       
-      setHechos: (hechos) => {
-        set({ hechos });
-        get().calcularTodo();
+      setSales: (sales) => {
+        set({ sales });
+        get().calculateAll();
       },
       
-      calcularTodo: () => {
-        const { clientes, productos, hechos } = get();
+      calculateAll: () => {
+        const { customers, products, sales } = get();
         
-        if (hechos.length === 0) {
+        if (sales.length === 0) {
           return;
         }
         
-        // Calcular KPIs
-        const kpis = calcularKPIs(hechos);
+        // Calculate KPIs
+        const kpis = calculateKPIs(sales);
         
-        // Calcular datos para gráficos
-        const ventasPorFecha = obtenerDatosGraficoVentasPorFecha(hechos);
-        const ventasPorCliente = obtenerDatosGraficoVentasPorCliente(hechos, clientes);
-        const ventasPorProducto = obtenerDatosGraficoVentasPorProducto(hechos, productos);
+        // Calculate chart data
+        const salesByDate = getSalesByDateChartData(sales);
+        const salesByCustomer = getSalesByCustomerChartData(sales, customers);
+        const salesByProduct = getSalesByProductChartData(sales, products);
         
         set({
           kpis,
-          ventasPorFecha,
-          ventasPorCliente,
-          ventasPorProducto,
+          salesByDate,
+          salesByCustomer,
+          salesByProduct,
         });
       },
       
@@ -104,14 +104,14 @@ export const useDashboardStore = create<DashboardState>()(
     {
       name: 'dashboard-storage',
       partialize: (state) => ({
-        clientes: state.clientes,
-        productos: state.productos,
-        tiempos: state.tiempos,
-        hechos: state.hechos,
+        customers: state.customers,
+        products: state.products,
+        times: state.times,
+        sales: state.sales,
         kpis: state.kpis,
-        ventasPorFecha: state.ventasPorFecha,
-        ventasPorCliente: state.ventasPorCliente,
-        ventasPorProducto: state.ventasPorProducto,
+        salesByDate: state.salesByDate,
+        salesByCustomer: state.salesByCustomer,
+        salesByProduct: state.salesByProduct,
       }),
     }
   )

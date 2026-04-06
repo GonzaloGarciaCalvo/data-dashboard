@@ -5,38 +5,38 @@ import { useDashboardStore } from '@/stores/dashboard';
 import { DollarSign, TrendingUp, Package, Percent, Calculator } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  'Ventas Totales': DollarSign,
-  'Costos Totales': DollarSign,
-  'Margen Bruto': TrendingUp,
-  'Margen %': Percent,
-  'Unidades Vendidas': Package,
-  'Promedio por Venta': Calculator,
+  'Total Sales': DollarSign,
+  'Total Costs': DollarSign,
+  'Gross Margin': TrendingUp,
+  'Margin %': Percent,
+  'Units Sold': Package,
+  'Average Sale': Calculator,
 };
 
 const colorMap: Record<string, string> = {
-  'Ventas Totales': 'text-green-600 dark:text-green-400',
-  'Costos Totales': 'text-red-600 dark:text-red-400',
-  'Margen Bruto': 'text-blue-600 dark:text-blue-400',
-  'Margen %': 'text-purple-600 dark:text-purple-400',
-  'Unidades Vendidas': 'text-orange-600 dark:text-orange-400',
-  'Promedio por Venta': 'text-indigo-600 dark:text-indigo-400',
+  'Total Sales': 'text-green-500 dark:text-green-400',
+  'Total Costs': 'text-red-500 dark:text-red-400',
+  'Gross Margin': 'text-blue-500 dark:text-blue-400',
+  'Margin %': 'text-purple-500 dark:text-purple-400',
+  'Units Sold': 'text-orange-500 dark:text-orange-400',
+  'Average Sale': 'text-indigo-500 dark:text-indigo-400',
 };
 
 export function KPIGrid() {
-  const { kpis, hechos } = useDashboardStore();
+  const { kpis, sales } = useDashboardStore();
 
-  if (hechos.length === 0) {
+  if (sales.length === 0) {
     return (
-      <Card className="p-6 text-center">
-        <p className="text-slate-700 ">No hay datos cargados. Sube archivos CSV para ver los KPIs.</p>
+      <Card className="p-6 text-center bg-white dark:bg-black border-slate-200 dark:border-slate-800">
+        <p className="text-slate-600 dark:text-slate-400">No data loaded. Upload CSV files to see KPIs.</p>
       </Card>
     );
   }
 
   if (kpis.length === 0) {
     return (
-      <Card className="p-6 text-center">
-        <p className="text-slate-700 ">Calculando KPIs...</p>
+      <Card className="p-6 text-center bg-white dark:bg-black border-slate-200 dark:border-slate-800">
+        <p className="text-slate-600 dark:text-slate-400">Calculating KPIs...</p>
       </Card>
     );
   }
@@ -44,24 +44,27 @@ export function KPIGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {kpis.map((kpi) => {
-        const Icon = iconMap[kpi.nombre] || DollarSign;
-        const colorClass = colorMap[kpi.nombre] || 'text-slate-600 dark:text-slate-400';
+        const Icon = iconMap[kpi.name] || DollarSign;
+        const colorClass = colorMap[kpi.name] || 'text-slate-500 dark:text-slate-400';
         
         return (
-          <Card key={kpi.nombre} className="hover:shadow-md transition-shadow overflow-hidden">
+          <Card 
+            key={kpi.name} 
+            className="hover:shadow-md transition-shadow overflow-hidden bg-white dark:bg-black border-slate-200 dark:border-slate-800"
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-1">
-              <CardTitle className="text-sm font-medium text-slate-800  truncate">
-                {kpi.nombre}
+              <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400 truncate">
+                {kpi.name}
               </CardTitle>
-              <Icon className={`h-5 w-5 flex-shrink-0 ${colorClass}`} />
+              <Icon className={`h-5 w-5 shrink-0 ${colorClass}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-xl md:text-2xl font-bold truncate" title={kpi.formattedValue}>
+              <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white truncate" title={kpi.formattedValue}>
                 {kpi.formattedValue}
               </div>
-              {kpi.Variación !== undefined && (
-                <p className={`text-xs mt-1 truncate ${kpi.Variación >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {kpi.Variación >= 0 ? '+' : ''}{kpi.Variación}% vs período anterior
+              {kpi.variation !== undefined && (
+                <p className={`text-xs mt-1 truncate ${kpi.variation >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  {kpi.variation >= 0 ? '+' : ''}{kpi.variation}% vs previous period
                 </p>
               )}
             </CardContent>

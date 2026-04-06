@@ -1,15 +1,39 @@
 import Papa from 'papaparse';
-import type { Cliente, Producto, Tiempo, Hecho } from '@/types';
+import type { Customer, Product, Time, Sale } from '@/types';
 
-// Función para convertir valores string a números
+// Function to convert string to number
 function parseNumber(value: string | number): number {
   if (typeof value === 'number') return value;
   if (!value) return 0;
   
-  // Reemplazar coma por punto para números con formato argentino
+  // Replace comma with dot for Argentine number format
   const normalized = value.toString().replace(',', '.');
   const parsed = parseFloat(normalized);
   return isNaN(parsed) ? 0 : parsed;
+}
+
+// Map Spanish CSV column names to English keys
+const columnMap: Record<string, string> = {
+  'fecha': 'date',
+  'idcliente': 'customerId',
+  'idproducto': 'productId',
+  'ventas': 'sales',
+  'costos': 'costs',
+  'unidades': 'units',
+  'nombre': 'name',
+  'región': 'region',
+  'segmento': 'segment',
+  'categoría': 'category',
+  'marca': 'brand',
+  'idtiempo': 'timeId',
+  'mes': 'month',
+  'trimestre': 'quarter',
+  'año': 'year',
+};
+
+function normalizeKey(key: string): string {
+  const trimmed = key.trim().toLowerCase();
+  return columnMap[trimmed] || key;
 }
 
 export async function parseCSVFile<T>(file: File): Promise<T[]> {
@@ -20,27 +44,35 @@ export async function parseCSVFile<T>(file: File): Promise<T[]> {
       transformHeader: (header) => header.trim(),
       transform: (value) => value?.trim() || '',
       complete: (results) => {
-        // Convertir valores numéricos después de parsear
         const data = results.data.map((row: Record<string, string>) => {
           const converted: Record<string, string | number> = {};
+          
           for (const [key, val] of Object.entries(row)) {
-            // Solo convertir campos claramente numéricos, NO IDs
-            if (key.toLowerCase() === 'ventas' || 
-                key.toLowerCase() === 'costos' ||
-                key.toLowerCase() === 'unidades') {
-              converted[key] = parseNumber(val);
+            // Normalize key to English
+            const englishKey = normalizeKey(key);
+            
+            // Convert numeric fields
+            const lowerKey = englishKey.toLowerCase();
+            if (lowerKey === 'sales' || lowerKey === 'costs' || lowerKey === 'units') {
+              converted[englishKey] = parseNumber(val);
             } else {
-              // Los IDs deben rester como strings
-              converted[key] = val;
+              converted[englishKey] = val;
             }
           }
-          return converted;
+          
+          return converted as T;
         });
         
         if (results.errors.length > 0) {
           console.warn('CSV Parse Warnings:', results.errors);
         }
-        resolve(data as T[]);
+        
+        // Debug: log first row to check
+        if (data.length > 0) {
+          console.log('Parsed data sample:', data[0]);
+        }
+        
+        resolve(data);
       },
       error: (error) => {
         console.error('CSV Parse Error:', error);
@@ -50,20 +82,20 @@ export async function parseCSVFile<T>(file: File): Promise<T[]> {
   });
 }
 
-export async function parseClientes(file: File): Promise<Cliente[]> {
-  return parseCSVFile<Cliente>(file);
+export async function parseCustomers(file: File): Promise<Customer[]> {
+  return parseCSVFile<Customer>(file);
 }
 
-export async function parseProductos(file: File): Promise<Producto[]> {
-  return parseCSVFile<Producto>(file);
+export async function parseProducts(file: File): Promise<Product[]> {
+  return parseCSVFile<Product>(file);
 }
 
-export async function parseTiempos(file: File): Promise<Tiempo[]> {
-  return parseCSVFile<Tiempo>(file);
+export async function parseTimes(file: File): Promise<Time[]> {
+  return parseCSVFile<Time>(file);
 }
 
-export async function parseHechos(file: File): Promise<Hecho[]> {
-  return parseCSVFile<Hecho>(file);
+export async function parseSales(file: File): Promise<Sale[]> {
+  return parseCSVFile<Sale>(file);
 }
 
 export function validateFileType(file: File, allowedTypes: string[]): boolean {

@@ -1,59 +1,59 @@
-import type { Hecho, KPICalculado, Cliente, Producto } from '@/types';
+import type { Sale, CalculatedKPI, Customer, Product } from '@/types';
 
-export function calcularKPIs(hechos: Hecho[]): KPICalculado[] {
-  if (hechos.length === 0) {
+export function calculateKPIs(sales: Sale[]): CalculatedKPI[] {
+  if (sales.length === 0) {
     return [];
   }
 
-  // Calcular totales
-  const totalVentas = hechos.reduce((sum, h) => sum + h.Ventas, 0);
-  const totalCostos = hechos.reduce((sum, h) => sum + h.Costos, 0);
-  const totalUnidades = hechos.reduce((sum, h) => sum + h.Unidades, 0);
+  // Calculate totals
+  const totalSales = sales.reduce((sum, s) => sum + s.sales, 0);
+  const totalCosts = sales.reduce((sum, s) => sum + s.costs, 0);
+  const totalUnits = sales.reduce((sum, s) => sum + s.units, 0);
   
-  // Calcular margen
-  const margenBruto = totalVentas - totalCostos;
-  const margenPorcentaje = totalVentas > 0 ? (margenBruto / totalVentas) * 100 : 0;
+  // Calculate margin
+  const grossMargin = totalSales - totalCosts;
+  const marginPercentage = totalSales > 0 ? (grossMargin / totalSales) * 100 : 0;
   
-  // Calcular promedio
-  const promedioVenta = totalVentas / hechos.length;
-  const promedioUnidades = totalUnidades / hechos.length;
+  // Calculate average
+  const averageSale = totalSales / sales.length;
+  const averageUnits = totalUnits / sales.length;
 
   return [
     {
-      nombre: 'Ventas Totales',
-      valor: totalVentas,
-      formattedValue: formatCurrency(totalVentas),
-      tipo: 'moneda',
+      name: 'Total Sales',
+      value: totalSales,
+      formattedValue: formatCurrency(totalSales),
+      type: 'currency',
     },
     {
-      nombre: 'Costos Totales',
-      valor: totalCostos,
-      formattedValue: formatCurrency(totalCostos),
-      tipo: 'moneda',
+      name: 'Total Costs',
+      value: totalCosts,
+      formattedValue: formatCurrency(totalCosts),
+      type: 'currency',
     },
     {
-      nombre: 'Margen Bruto',
-      valor: margenBruto,
-      formattedValue: formatCurrency(margenBruto),
-      tipo: 'moneda',
+      name: 'Gross Margin',
+      value: grossMargin,
+      formattedValue: formatCurrency(grossMargin),
+      type: 'currency',
     },
     {
-      nombre: 'Margen %',
-      valor: margenPorcentaje,
-      formattedValue: `${margenPorcentaje.toFixed(1)}%`,
-      tipo: 'porcentaje',
+      name: 'Margin %',
+      value: marginPercentage,
+      formattedValue: `${marginPercentage.toFixed(1)}%`,
+      type: 'percentage',
     },
     {
-      nombre: 'Unidades Vendidas',
-      valor: totalUnidades,
-      formattedValue: totalUnidades.toLocaleString(),
-      tipo: 'numero',
+      name: 'Units Sold',
+      value: totalUnits,
+      formattedValue: totalUnits.toLocaleString(),
+      type: 'number',
     },
     {
-      nombre: 'Promedio por Venta',
-      valor: promedioVenta,
-      formattedValue: formatCurrency(promedioVenta),
-      tipo: 'moneda',
+      name: 'Average Sale',
+      value: averageSale,
+      formattedValue: formatCurrency(averageSale),
+      type: 'currency',
     },
   ];
 }
@@ -67,102 +67,100 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-// KPIs por cliente
-export function calcularKPIsPorCliente(hechos: Hecho[], clientes: Cliente[]): Map<string, KPICalculado[]> {
-  const kpisPorCliente = new Map<string, KPICalculado[]>();
+// KPIs by customer
+export function calculateKPIsByCustomer(sales: Sale[], customers: Customer[]): Map<string, CalculatedKPI[]> {
+  const kpisByCustomer = new Map<string, CalculatedKPI[]>();
   
-  // Agrupar hechos por cliente
-  const hechosPorCliente = new Map<string, Hecho[]>();
+  const salesByCustomer = new Map<string, Sale[]>();
   
-  hechos.forEach(hecho => {
-    const existentes = hechosPorCliente.get(hecho.IDCliente) || [];
-    existentes.push(hecho);
-    hechosPorCliente.set(hecho.IDCliente, existentes);
+  sales.forEach(sale => {
+    const existing = salesByCustomer.get(sale.customerId) || [];
+    existing.push(sale);
+    salesByCustomer.set(sale.customerId, existing);
   });
   
-  // Calcular KPIs por cliente
-  hechosPorCliente.forEach((hechosCliente, idCliente) => {
-    const kpis = calcularKPIs(hechosCliente);
-    kpisPorCliente.set(idCliente, kpis);
+  salesByCustomer.forEach((salesCustomer, customerId) => {
+    const kpis = calculateKPIs(salesCustomer);
+    kpisByCustomer.set(customerId, kpis);
   });
   
-  return kpisPorCliente;
+  return kpisByCustomer;
 }
 
-// KPIs por producto
-export function calcularKPIsPorProducto(hechos: Hecho[], productos: Producto[]): Map<string, KPICalculado[]> {
-  const kpisPorProducto = new Map<string, KPICalculado[]>();
+// KPIs by product
+export function calculateKPIsByProduct(sales: Sale[], products: Product[]): Map<string, CalculatedKPI[]> {
+  const kpisByProduct = new Map<string, CalculatedKPI[]>();
   
-  const hechosPorProducto = new Map<string, Hecho[]>();
+  const salesByProduct = new Map<string, Sale[]>();
   
-  hechos.forEach(hecho => {
-    const existentes = hechosPorProducto.get(hecho.IDProducto) || [];
-    existentes.push(hecho);
-    hechosPorProducto.set(hecho.IDProducto, existentes);
+  sales.forEach(sale => {
+    const existing = salesByProduct.get(sale.productId) || [];
+    existing.push(sale);
+    salesByProduct.set(sale.productId, existing);
   });
   
-  hechosPorProducto.forEach((hechosProducto, idProducto) => {
-    const kpis = calcularKPIs(hechosProducto);
-    kpisPorProducto.set(idProducto, kpis);
+  salesByProduct.forEach((salesProduct, productId) => {
+    const kpis = calculateKPIs(salesProduct);
+    kpisByProduct.set(productId, kpis);
   });
   
-  return kpisPorProducto;
+  return kpisByProduct;
 }
 
-// Datos para gráficos
-export function obtenerDatosGraficoVentasPorFecha(hechos: Hecho[]): { fecha: string; ventas: number; costos: number; margen: number }[] {
-  const datosPorFecha = new Map<string, { ventas: number; costos: number }>();
+// Chart data for sales by date
+export function getSalesByDateChartData(sales: Sale[]): { date: string; sales: number; costs: number; margin: number }[] {
+  const dataByDate = new Map<string, { sales: number; costs: number }>();
   
-  hechos.forEach(hecho => {
-    const existente = datosPorFecha.get(hecho.Fecha) || { ventas: 0, costos: 0 };
-    existente.ventas += hecho.Ventas;
-    existente.costos += hecho.Costos;
-    datosPorFecha.set(hecho.Fecha, existente);
+  sales.forEach(sale => {
+    const existing = dataByDate.get(sale.date) || { sales: 0, costs: 0 };
+    existing.sales += sale.sales;
+    existing.costs += sale.costs;
+    dataByDate.set(sale.date, existing);
   });
   
-  return Array.from(datosPorFecha.entries())
-    .map(([fecha, datos]) => ({
-      fecha,
-      ventas: datos.ventas,
-      costos: datos.costos,
-      margen: datos.ventas - datos.costos,
+  return Array.from(dataByDate.entries())
+    .map(([date, data]) => ({
+      date,
+      sales: data.sales,
+      costs: data.costs,
+      margin: data.sales - data.costs,
     }))
-    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-export function obtenerDatosGraficoVentasPorCliente(hechos: Hecho[], clientes: Cliente[]): { name: string; value: number }[] {
-  const datosPorCliente = new Map<string, number>();
+export function getSalesByCustomerChartData(sales: Sale[], customers: Customer[]): { name: string; value: number }[] {
+  const dataByCustomer = new Map<string, number>();
   
-  hechos.forEach(hecho => {
-    const existente = datosPorCliente.get(hecho.IDCliente) || 0;
-    datosPorCliente.set(hecho.IDCliente, existente + hecho.Ventas);
+  sales.forEach(sale => {
+    const existing = dataByCustomer.get(sale.customerId) || 0;
+    dataByCustomer.set(sale.customerId, existing + sale.sales);
   });
   
-  return Array.from(datosPorCliente.entries())
-    .map(([idCliente, ventas]) => {
-      const cliente = clientes.find(c => c.IDCliente === idCliente);
+  return Array.from(dataByCustomer.entries())
+    .map(([customerId, salesAmount]) => {
+      const customer = customers.find(c => c.customerId === customerId);
       return {
-        name: cliente?.Nombre || idCliente,
-        value: ventas,
+        name: customer?.name || customerId,
+        value: salesAmount,
       };
     })
     .sort((a, b) => b.value - a.value);
 }
 
-export function obtenerDatosGraficoVentasPorProducto(hechos: Hecho[], productos: Producto[]): { name: string; value: number }[] {
-  const datosPorProducto = new Map<string, number>();
+export function getSalesByProductChartData(sales: Sale[], products: Product[]): { name: string; value: number }[] {
+  const dataByProduct = new Map<string, number>();
   
-  hechos.forEach(hecho => {
-    const existente = datosPorProducto.get(hecho.IDProducto) || 0;
-    datosPorProducto.set(hecho.IDProducto, existente + hecho.Ventas);
+  sales.forEach(sale => {
+    const existing = dataByProduct.get(sale.productId) || 0;
+    dataByProduct.set(sale.productId, existing + sale.sales);
   });
   
-  return Array.from(datosPorProducto.entries())
-    .map(([idProducto, ventas]) => {
-      const producto = productos.find(p => p.IDProducto === idProducto);
+  return Array.from(dataByProduct.entries())
+    .map(([productId, salesAmount]) => {
+      const product = products.find(p => p.productId === productId);
       return {
-        name: producto?.Categoría || idProducto,
-        value: ventas,
+        name: product?.category || productId,
+        value: salesAmount,
       };
     })
     .sort((a, b) => b.value - a.value);

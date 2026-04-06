@@ -4,15 +4,15 @@ import { useState, useCallback, DragEvent } from 'react';
 import { Upload, FileText, X, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { parseClientes, parseProductos, parseTiempos, parseHechos, validateFileType, validateFileSize } from '@/lib/csv/parser';
+import { parseCustomers, parseProducts, parseTimes, parseSales, validateFileType, validateFileSize } from '@/lib/csv/parser';
 import { useDashboardStore } from '@/stores/dashboard';
-import type { Cliente, Producto, Tiempo, Hecho } from '@/types';
+import type { Customer, Product, Time, Sale } from '@/types';
 
 interface FileUpload {
   file: File;
   status: 'pending' | 'loading' | 'success' | 'error';
   error?: string;
-  type: 'clientes' | 'productos' | 'tiempos' | 'hechos';
+  type: 'customers' | 'products' | 'times' | 'sales';
 }
 
 const ALLOWED_TYPES = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
@@ -21,15 +21,15 @@ const MAX_SIZE_MB = 5;
 export function CSVUploader() {
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const { setClientes, setProductos, setTiempos, setHechos, isLoading, setLoading, setError } = useDashboardStore();
+  const { setCustomers, setProducts, setTimes, setSales, isLoading, setLoading, setError } = useDashboardStore();
 
   const detectFileType = (filename: string): FileUpload['type'] => {
     const lower = filename.toLowerCase();
-    if (lower.includes('cliente') || lower.includes('dimclientes')) return 'clientes';
-    if (lower.includes('producto') || lower.includes('dimproductos')) return 'productos';
-    if (lower.includes('tiempo') || lower.includes('dimtiempo')) return 'tiempos';
-    if (lower.includes('hecho') || lower.includes('fact')) return 'hechos';
-    return 'hechos'; // default
+    if (lower.includes('customer') || lower.includes('cliente') || lower.includes('dimclientes')) return 'customers';
+    if (lower.includes('product') || lower.includes('dimproductos')) return 'products';
+    if (lower.includes('time') || lower.includes('tiempo') || lower.includes('dimtiempo')) return 'times';
+    if (lower.includes('sale') || lower.includes('hecho') || lower.includes('fact')) return 'sales';
+    return 'sales'; // default
   };
 
   const handleFiles = useCallback((fileList: FileList) => {
@@ -80,30 +80,28 @@ export function CSVUploader() {
       ));
 
       try {
-        // Validar tipo
         if (!validateFileType(fileUpload.file, ALLOWED_TYPES)) {
-          throw new Error('Tipo de archivo no válido. Solo se aceptan CSV.');
+          throw new Error('Invalid file type. Only CSV files are accepted.');
         }
 
-        // Validar tamaño
         if (!validateFileSize(fileUpload.file, MAX_SIZE_MB)) {
-          throw new Error(`El archivo excede el tamaño máximo de ${MAX_SIZE_MB}MB.`);
+          throw new Error(`File exceeds maximum size of ${MAX_SIZE_MB}MB.`);
         }
 
         let data: unknown[] = [];
 
         switch (fileUpload.type) {
-          case 'clientes':
-            data = await parseClientes(fileUpload.file);
+          case 'customers':
+            data = await parseCustomers(fileUpload.file);
             break;
-          case 'productos':
-            data = await parseProductos(fileUpload.file);
+          case 'products':
+            data = await parseProducts(fileUpload.file);
             break;
-          case 'tiempos':
-            data = await parseTiempos(fileUpload.file);
+          case 'times':
+            data = await parseTimes(fileUpload.file);
             break;
-          case 'hechos':
-            data = await parseHechos(fileUpload.file);
+          case 'sales':
+            data = await parseSales(fileUpload.file);
             break;
         }
 
@@ -113,7 +111,7 @@ export function CSVUploader() {
 
         return { type: fileUpload.type, data };
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         setFiles(prev => prev.map(f => 
           f.file === fileUpload.file ? { ...f, status: 'error', error: errorMessage } : f
         ));
@@ -124,32 +122,31 @@ export function CSVUploader() {
     try {
       const results = await Promise.all(files.map(processFile));
 
-      // Actualizar el store con los datos
       results.forEach(result => {
         switch (result.type) {
-          case 'clientes':
-            setClientes(result.data as Cliente[]);
+          case 'customers':
+            setCustomers(result.data as Customer[]);
             break;
-          case 'productos':
-            setProductos(result.data as Producto[]);
+          case 'products':
+            setProducts(result.data as Product[]);
             break;
-          case 'tiempos':
-            setTiempos(result.data as Tiempo[]);
+          case 'times':
+            setTimes(result.data as Time[]);
             break;
-          case 'hechos':
-            setHechos(result.data as Hecho[]);
+          case 'sales':
+            setSales(result.data as Sale[]);
             break;
         }
       });
 
       setError(null);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al procesar los archivos';
+      const errorMessage = error instanceof Error ? error.message : 'Error processing files';
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [files, setClientes, setProductos, setTiempos, setHechos, setLoading, setError]);
+  }, [files, setCustomers, setProducts, setTimes, setSales, setLoading, setError]);
 
   const removeFile = useCallback((file: File) => {
     setFiles(prev => prev.filter(f => f.file !== file));
@@ -160,21 +157,21 @@ export function CSVUploader() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-5 w-5" />
-          Cargar Archivos CSV
+          Load CSV Files
         </CardTitle>
         <CardDescription>
-          Sube tus archivos CSV con los datos de clientes, productos, tiempos y hechos.
-          Tamaño máximo: {MAX_SIZE_MB}MB por archivo.
+          Upload your CSV files with customer, product, time, and sales data.
+          Maximum file size: {MAX_SIZE_MB}MB per file.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Área de drop/upload */}
+          {/* Drop/upload area */}
           <div 
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
               isDragging 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-slate-300 hover:border-slate-400'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' 
+                : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -182,7 +179,7 @@ export function CSVUploader() {
           >
             <input
               type="file"
-              accept=".csv,.cvs"
+              accept=".csv,text/csv"
               multiple
               onChange={handleFileSelect}
               className="hidden"
@@ -190,28 +187,28 @@ export function CSVUploader() {
             />
             <label htmlFor="csv-upload" className="cursor-pointer">
               <Upload className="mx-auto h-12 w-12 text-slate-400" />
-              <p className="mt-2 text-sm text-slate-600">
-                Haz clic para seleccionar archivos CSV
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                Click to select CSV files
               </p>
               <p className="text-xs text-slate-400 mt-1">
-                O arrastra los archivos aquí
+                Or drag and drop files here
               </p>
             </label>
           </div>
 
-          {/* Lista de archivos */}
+          {/* File list */}
           {files.length > 0 && (
             <div className="space-y-2">
               {files.map((fileUpload, index) => (
                 <div
                   key={`${fileUpload.file.name}-${index}`}
-                  className="flex items-center justify-between p-3 bg-slate-50 rounded-md"
+                  className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded-md"
                 >
                   <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-slate-500" />
+                    <FileText className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                     <div>
-                      <p className="text-sm font-medium">{fileUpload.file.name}</p>
-                      <p className="text-xs text-slate-500 capitalize">{fileUpload.type}</p>
+                      <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{fileUpload.file.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{fileUpload.type}</p>
                       {fileUpload.error && (
                         <p className="text-xs text-red-500">{fileUpload.error}</p>
                       )}
@@ -219,10 +216,10 @@ export function CSVUploader() {
                   </div>
                   <div className="flex items-center gap-2">
                     {fileUpload.status === 'pending' && (
-                      <span className="text-xs text-slate-400">Pendiente</span>
+                      <span className="text-xs text-slate-400">Pending</span>
                     )}
                     {fileUpload.status === 'loading' && (
-                      <span className="text-xs text-blue-500">Procesando...</span>
+                      <span className="text-xs text-blue-500">Processing...</span>
                     )}
                     {fileUpload.status === 'success' && (
                       <CheckCircle className="h-5 w-5 text-green-500" />
@@ -233,7 +230,7 @@ export function CSVUploader() {
                     <button
                       type="button"
                       onClick={() => removeFile(fileUpload.file)}
-                      className="p-1 hover:bg-slate-200 rounded"
+                      className="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded"
                     >
                       <X className="h-4 w-4 text-slate-500" />
                     </button>
@@ -243,7 +240,7 @@ export function CSVUploader() {
             </div>
           )}
 
-          {/* Botón de procesar */}
+          {/* Process button */}
           {files.length > 0 && (
             <div className="flex justify-end gap-2">
               <Button
@@ -252,14 +249,14 @@ export function CSVUploader() {
                 onClick={() => setFiles([])}
                 disabled={isLoading}
               >
-                Limpiar
+                Clear
               </Button>
               <Button
                 type="button"
                 onClick={processFiles}
                 disabled={isLoading || files.every(f => f.status === 'success')}
               >
-                {isLoading ? 'Procesando...' : 'Procesar Archivos'}
+                {isLoading ? 'Processing...' : 'Process Files'}
               </Button>
             </div>
           )}
