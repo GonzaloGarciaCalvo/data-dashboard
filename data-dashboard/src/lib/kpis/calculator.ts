@@ -105,14 +105,21 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
   // Group sales by month/year, excluding current month
   // Extract year/month directly from sale date (YYYY-MM-DD format)
   sales.forEach(sale => {
-    const saleDate = new Date(sale.date);
-    const saleYear = saleDate.getFullYear();
-    const saleMonth = saleDate.getMonth() + 1; // JavaScript months are 0-indexed
+    // Parse date manually from YYYY-MM-DD format to avoid timezone issues
+    const [yearStr, monthStr, dayStr] = sale.date.split('-');
+    const saleYear = parseInt(yearStr, 10);
+    const saleMonth = parseInt(monthStr, 10);
+    
+    console.log(`Processing sale date: ${sale.date}, parsed year: ${saleYear}, month: ${saleMonth}`);
     
     // Skip if this is the current month (incomplete)
     if (saleYear === currentYear && saleMonth === currentMonth) {
+      console.log(`Skipping current month sale: ${sale.date}`);
       return;
     }
+    
+    if (saleMonth === 3) console.log("TERMINO 3 : ", sale);
+    if (saleMonth === 2) console.log("TERMINO 2 : ", sale);
     
     // Format as YYYY-MM for consistent sorting
     const monthYearKey = `${saleYear}-${saleMonth.toString().padStart(2, '0')}`;
@@ -145,7 +152,8 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
   if (previous.sales === 0) {
     return mostRecent.sales > 0 ? 100 : 0;
   }
-  
+  console.log("mostRecent.sales: ", mostRecent.sales);
+  console.log("previous.sales: ", previous.sales);
   return ((mostRecent.sales - previous.sales) / previous.sales) * 100;
 }
 
