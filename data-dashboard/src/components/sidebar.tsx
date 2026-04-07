@@ -35,14 +35,14 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
         <nav className="space-y-2">
           <button 
             type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors bg-slate-100 dark:bg-slate-700"
+            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-700 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors bg-slate-100 dark:bg-slate-700 "
           >
             <BarChart3 className="h-5 w-5" />
             Dashboard
           </button>
           <button 
             type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             onClick={onClose}
           >
             <Upload className="h-5 w-5" />
@@ -50,7 +50,7 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
           </button>
           <button 
             type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           >
             <Settings className="h-5 w-5" />
             Settings
@@ -60,19 +60,19 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
         {/* Stats in sidebar */}
         {hasData && (
           <div className="mt-8 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-3">Loaded Data</h3>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-100 mb-3">Loaded Data</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Customers:</span>
-                <span className="font-medium text-slate-700 dark:text-slate-200">{customers.length}</span>
+                <span className="text-slate-500 dark:text-slate-100">Customers:</span>
+                <span className="font-medium text-slate-700 dark:text-slate-50">{customers.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Products:</span>
-                <span className="font-medium text-slate-700 dark:text-slate-200">{products.length}</span>
+                <span className="text-slate-500 dark:text-slate-100">Products:</span>
+                <span className="font-medium text-slate-700 dark:text-slate-50">{products.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-400">Records:</span>
-                <span className="font-medium text-slate-700 dark:text-slate-200">{sales.length}</span>
+                <span className="text-slate-500 dark:text-slate-100">Records:</span>
+                <span className="font-medium text-slate-700 dark:text-slate-50">{sales.length}</span>
               </div>
             </div>
           </div>

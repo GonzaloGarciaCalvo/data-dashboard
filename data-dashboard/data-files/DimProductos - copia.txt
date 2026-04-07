@@ -1,0 +1,3 @@
+IDProducto,Categoría,Marca
+P001,Bebidas,CocaCola
+P002,Snacks,Pepsico

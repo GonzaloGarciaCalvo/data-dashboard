@@ -30,8 +30,8 @@ export function Header({ hasData, onClearData, sidebarOpen, onToggleSidebar }: H
         <div className="flex items-center gap-4">
           {hasData && (
             <Button type="button" variant="outline" size="sm" onClick={onClearData}>
-              <LogOut className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Clear Data</span>
+              <LogOut className="h-4 w-4 mr-2 dark:text-slate-50" />
+              <span className="hidden sm:inline dark:text-slate-50">Clear Data</span>
             </Button>
           )}
         </div>

@@ -71,14 +71,14 @@ export const useDashboardStore = create<DashboardState>()(
       },
       
       calculateAll: () => {
-        const { customers, products, sales } = get();
+        const { customers, products, sales, times } = get();
         
         if (sales.length === 0) {
           return;
         }
         
-        // Calculate KPIs
-        const kpis = calculateKPIs(sales);
+        // Calculate KPIs (now passing both sales and times)
+        const kpis = calculateKPIs(sales, times);
         
         // Calculate chart data
         const salesByDate = getSalesByDateChartData(sales);
@@ -99,7 +99,7 @@ export const useDashboardStore = create<DashboardState>()(
       
       setLoading: (isLoading) => set({ isLoading }),
       
-      setError: (error) => set({ error }),
+      setError: (error) => set({ error })
     }),
     {
       name: 'dashboard-storage',
@@ -112,7 +112,7 @@ export const useDashboardStore = create<DashboardState>()(
         salesByDate: state.salesByDate,
         salesByCustomer: state.salesByCustomer,
         salesByProduct: state.salesByProduct,
-      }),
+      })
     }
   )
 );

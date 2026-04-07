@@ -1,6 +1,6 @@
-import type { Sale, CalculatedKPI, Customer, Product } from '@/types';
+import type { Sale, CalculatedKPI, Customer, Product, Time } from '@/types';
 
-export function calculateKPIs(sales: Sale[]): CalculatedKPI[] {
+export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
   if (sales.length === 0) {
     return [];
   }
@@ -13,10 +13,15 @@ export function calculateKPIs(sales: Sale[]): CalculatedKPI[] {
   // Calculate margin
   const grossMargin = totalSales - totalCosts;
   const marginPercentage = totalSales > 0 ? (grossMargin / totalSales) * 100 : 0;
+  const costOfSalePercentage = totalSales > 0 ? (totalCosts / totalSales) * 100 : 0;
   
   // Calculate average
   const averageSale = totalSales / sales.length;
   const averageUnits = totalUnits / sales.length;
+  
+  // Calculate Monthly Variation (last 2 completed months)
+  const monthlyVariation = calculateMonthlyVariation(sales, times);
+  console.log("Monthly Variation: ", monthlyVariation);
 
   return [
     {
@@ -44,6 +49,18 @@ export function calculateKPIs(sales: Sale[]): CalculatedKPI[] {
       type: 'percentage',
     },
     {
+      name: 'Cost of Sale %',
+      value: costOfSalePercentage,
+      formattedValue: `${costOfSalePercentage.toFixed(1)}%`,
+      type: 'percentage',
+    },
+    {
+      name: 'Monthly Variation',
+      value: monthlyVariation ?? 0,
+      formattedValue: monthlyVariation === null ? 'N/A' : `${monthlyVariation >= 0 ? '+' : ''}${Math.abs(monthlyVariation).toFixed(1)}%`,
+      type: 'percentage',
+    },
+    {
       name: 'Units Sold',
       value: totalUnits,
       formattedValue: totalUnits.toLocaleString(),
@@ -67,6 +84,71 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+// Calculate monthly variation between last 2 completed months
+function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null {
+  console.log("Sales in Calculating monthly variation: ", sales);
+  console.log("Times in Calculating monthly variation: ", times);
+  if (sales.length === 0) {
+    console.log(" EN IF RETURN NULL (no sales)");
+    return null;
+  }
+
+  // Get current year and month to identify the current month
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+
+  // Create a map of month->year to total sales, excluding current month
+  const salesByMonth = new Map<string, number>();
+  console.log("salesByMonth initial: ", salesByMonth);
+  
+  // Group sales by month/year, excluding current month
+  // Extract year/month directly from sale date (YYYY-MM-DD format)
+  sales.forEach(sale => {
+    const saleDate = new Date(sale.date);
+    const saleYear = saleDate.getFullYear();
+    const saleMonth = saleDate.getMonth() + 1; // JavaScript months are 0-indexed
+    
+    // Skip if this is the current month (incomplete)
+    if (saleYear === currentYear && saleMonth === currentMonth) {
+      return;
+    }
+    
+    // Format as YYYY-MM for consistent sorting
+    const monthYearKey = `${saleYear}-${saleMonth.toString().padStart(2, '0')}`;
+    const current = salesByMonth.get(monthYearKey) || 0;
+    salesByMonth.set(monthYearKey, current + sale.sales);
+  });
+
+  console.log("salesByMonth after processing: ", salesByMonth);
+  
+  // Convert to array and sort by year/month descending (most recent first)
+  const sortedMonths = Array.from(salesByMonth.entries())
+    .map(([monthYear, sales]) => ({
+      monthYear,
+      sales: Number(sales)
+    }))
+    .sort((a, b) => b.monthYear.localeCompare(a.monthYear)); // Descending order
+
+  console.log("sortedMonths: ", sortedMonths);
+  
+  // Need at least 2 completed months to calculate variation
+  if (sortedMonths.length < 2) {
+    console.log("Not enough completed months: ", sortedMonths.length);
+    return null;
+  }
+
+  // Get the last 2 completed months (most recent and previous)
+  const [mostRecent, previous] = sortedMonths.slice(0, 2);
+  
+  // Calculate percentage change: ((current - previous) / previous) * 100
+  if (previous.sales === 0) {
+    return mostRecent.sales > 0 ? 100 : 0;
+  }
+  
+  return ((mostRecent.sales - previous.sales) / previous.sales) * 100;
+}
+
 // KPIs by customer
 export function calculateKPIsByCustomer(sales: Sale[], customers: Customer[]): Map<string, CalculatedKPI[]> {
   const kpisByCustomer = new Map<string, CalculatedKPI[]>();
@@ -80,7 +162,7 @@ export function calculateKPIsByCustomer(sales: Sale[], customers: Customer[]): M
   });
   
   salesByCustomer.forEach((salesCustomer, customerId) => {
-    const kpis = calculateKPIs(salesCustomer);
+    const kpis = calculateKPIs(salesCustomer, []); // Pass empty times array for now
     kpisByCustomer.set(customerId, kpis);
   });
   
@@ -100,7 +182,7 @@ export function calculateKPIsByProduct(sales: Sale[], products: Product[]): Map<
   });
   
   salesByProduct.forEach((salesProduct, productId) => {
-    const kpis = calculateKPIs(salesProduct);
+    const kpis = calculateKPIs(salesProduct, []); // Pass empty times array for now
     kpisByProduct.set(productId, kpis);
   });
   
