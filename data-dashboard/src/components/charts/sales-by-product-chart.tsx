@@ -38,7 +38,10 @@ export function SalesByProductChart() {
   }
 
   return (
-    <Card className="bg-white dark:bg-black border-slate-200 dark:border-slate-800">
+    <Card 
+      className="bg-white dark:bg-black border-slate-200 dark:border-slate-800"
+      data-testid="sales-by-product"
+    >
       <CardHeader>
         <CardTitle className="text-slate-900 dark:text-white">Sales by Product</CardTitle>
       </CardHeader>

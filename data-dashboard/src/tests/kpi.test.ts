@@ -1,4 +1,3 @@
-/* import { describe, it, assert } from 'node:test'; */
 import { describe, it, assert, expect } from 'vitest';  
 import { calculateKPIs, getSalesByDateChartData, getSalesByCustomerChartData, getSalesByProductChartData } from '../lib/kpis/calculator.js';
 import type { Sale, Customer, Product, Time } from '../types/index.js';
@@ -84,15 +83,12 @@ describe('KPI Calculator', () => {
   it('should calculate monthly variation between February and March', () => {
     const kpis = calculateKPIs(mockSales, mockTimes);
     const monthlyVariation = kpis.find(k => k.name === 'Monthly Variation');
-    // February: 16230, March: 16470
-    // Variation: ((16470 - 16230) / 16230) * 100 ≈ 1.48%
     expect(monthlyVariation?.value).toBeCloseTo(1.478, 2);
   });
 
   it('should calculate average sale correctly', () => {
     const kpis = calculateKPIs(mockSales, mockTimes);
     const avgSale = kpis.find(k => k.name === 'Average Sale');
-    //assert.strictEqual(avgSale?.value, 1167.86);
     expect(avgSale?.value).toBeCloseTo(1167.857, 2);
   });
 
@@ -104,9 +100,6 @@ describe('KPI Calculator', () => {
   it('should calculate monthly variation between February and March', () => {
     const kpis = calculateKPIs(mockSales, mockTimes);
     const monthlyVariation = kpis.find(k => k.name === 'Monthly Variation');
-    // February: 16230, March: 16470
-    // Variation: ((16470 - 16230) / 16230) * 100 ≈ 1.48%
-    //assert.strictEqual(monthlyVariation?.value, 1.48);
     expect(monthlyVariation?.value).toBeCloseTo(1.478, 2);
   });
 });
@@ -138,7 +131,7 @@ describe('getSalesByCustomerChartData', () => {
   it('should aggregate sales by customer correctly', () => {
     const chartData = getSalesByCustomerChartData(mockSales, mockCustomers);
     const customer1 = chartData.find(c => c.name === 'Customer 1');
-    assert.ok(customer1?.value > 0);
+    if (customer1) assert.ok(customer1?.value > 0);
   });
 });
 

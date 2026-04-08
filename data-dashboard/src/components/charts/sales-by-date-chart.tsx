@@ -41,7 +41,10 @@ export function SalesByDateChart() {
   }
 
   return (
-    <Card className="bg-white dark:bg-black border-slate-200 dark:border-slate-800">
+    <Card 
+      className="bg-white dark:bg-black border-slate-200 dark:border-slate-800"
+      data-testid="sales-by-date"
+    >
       <CardHeader>
         <CardTitle className="text-slate-900 dark:text-white">Sales by Date</CardTitle>
       </CardHeader>

@@ -15,7 +15,9 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'
 const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; name: string; color: string }> }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg p-3 shadow-lg">
+      <div 
+        className="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg p-3 shadow-lg"
+      >
         {payload.map((entry, idx) => (
           <p key={idx} className="text-sm" style={{ color: entry.color }}>
             {entry.name}: ${entry.value.toLocaleString()}
@@ -39,7 +41,11 @@ export function SalesByCustomerChart() {
   }
 
   return (
-    <Card className="bg-white dark:bg-black border-slate-200 dark:border-slate-800">
+    <Card 
+      className="bg-white dark:bg-black border-slate-200 dark:border-slate-800"
+      data-testid="sales-by-customer"
+    >
+      
       <CardHeader>
         <CardTitle className="text-slate-900 dark:text-white">Sales by Customer</CardTitle>
       </CardHeader>
@@ -51,7 +57,7 @@ export function SalesByCustomerChart() {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
