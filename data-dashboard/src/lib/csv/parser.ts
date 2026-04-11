@@ -15,11 +15,13 @@ function parseNumber(value: string | number): number {
 // Map Spanish CSV column names to English keys
 const columnMap: Record<string, string> = {
   'fecha': 'date',
+  'year': 'year',
   'idcliente': 'customerId',
   'idproducto': 'productId',
   'ventas': 'sales',
   'costos': 'costs',
   'unidades': 'units',
+  'idventa': 'saleId',
   'nombre': 'name',
   'región': 'region',
   'segmento': 'segment',

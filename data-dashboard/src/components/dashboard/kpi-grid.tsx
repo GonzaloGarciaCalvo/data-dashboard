@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDashboardStore } from '@/stores/dashboard';
+import { useDashboardStore, shouldShowMonthlyVariation } from '@/stores/dashboard';
 import { DollarSign, TrendingUp, Package, Percent, Calculator } from 'lucide-react';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -11,6 +11,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'Margin %': Percent,
   'Units Sold': Package,
   'Average Sale': Calculator,
+  'Monthly Variation': TrendingUp,
 };
 
 const colorMap: Record<string, string> = {
@@ -20,10 +21,11 @@ const colorMap: Record<string, string> = {
   'Margin %': 'text-purple-500 dark:text-purple-400',
   'Units Sold': 'text-orange-500 dark:text-orange-400',
   'Average Sale': 'text-indigo-500 dark:text-indigo-400',
+  'Monthly Variation': 'text-cyan-500 dark:text-cyan-400',
 };
 
 export function KPIGrid() {
-  const { kpis, sales } = useDashboardStore();
+  const { kpis, sales, period, manualMonths } = useDashboardStore();
 
   if (sales.length === 0) {
     return (
@@ -41,9 +43,13 @@ export function KPIGrid() {
     );
   }
 
+  // Filter KPIs based on period - hide Monthly Variation for manual/current/monthly
+  const showMV = shouldShowMonthlyVariation(period, manualMonths);
+  const filteredKpis = showMV ? kpis : kpis.filter(k => k.name !== 'Monthly Variation');
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {kpis.map((kpi) => {
+      {filteredKpis.map((kpi) => {
         const Icon = iconMap[kpi.name] || DollarSign;
         const colorClass = colorMap[kpi.name] || 'text-slate-500 dark:text-slate-400';
         

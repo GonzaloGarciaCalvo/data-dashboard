@@ -23,11 +23,13 @@ export interface Time {
 
 export interface Sale {
   date: string;
+  year: string;
   customerId: string;
   productId: string;
   sales: number;
   costs: number;
   units: number;
+  saleId?: string;
 }
 
 // CSV row type - accepts both English and Spanish column names

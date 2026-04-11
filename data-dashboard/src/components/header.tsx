@@ -2,6 +2,7 @@
 
 import { LayoutDashboard, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { PeriodSelector } from '@/components/ui/period-selector';
 
 interface HeaderProps {
   hasData: boolean;
@@ -29,10 +30,15 @@ export function Header({ hasData, onClearData, sidebarOpen, onToggleSidebar }: H
         </div>
         <div className="flex items-center gap-4">
           {hasData && (
-            <Button type="button" variant="outline" size="sm" onClick={onClearData}>
-              <LogOut className="h-4 w-4 mr-2 dark:text-slate-50" />
-              <span className="hidden sm:inline dark:text-slate-50">Clear Data</span>
-            </Button>
+            <>
+              <div className="hidden md:block">
+                <PeriodSelector />
+              </div>
+              <Button type="button" variant="outline" size="sm" onClick={onClearData}>
+                <LogOut className="h-4 w-4 mr-2 dark:text-slate-50" />
+                <span className="hidden sm:inline dark:text-slate-50">Clear Data</span>
+              </Button>
+            </>
           )}
         </div>
       </div>

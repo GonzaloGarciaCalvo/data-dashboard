@@ -1,4 +1,7 @@
 import type { Sale, CalculatedKPI, Customer, Product, Time } from '@/types';
+import type { ChartGrouping } from '@/stores/dashboard';
+
+// ==================== KPI Calculation ====================
 
 export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
   if (sales.length === 0) {
@@ -17,11 +20,9 @@ export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
   
   // Calculate average
   const averageSale = totalSales / sales.length;
-  const averageUnits = totalUnits / sales.length;
   
   // Calculate Monthly Variation (last 2 completed months)
   const monthlyVariation = calculateMonthlyVariation(sales, times);
-  console.log("Monthly Variation: ", monthlyVariation);
 
   return [
     {
@@ -86,62 +87,44 @@ function formatCurrency(value: number): string {
 
 // Calculate monthly variation between last 2 completed months
 function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null {
-  console.log("Sales in Calculating monthly variation: ", sales);
-  console.log("Times in Calculating monthly variation: ", times);
   if (sales.length === 0) {
-    console.log(" EN IF RETURN NULL (no sales)");
     return null;
   }
 
   // Get current year and month to identify the current month
   const now = new Date();
   const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
+  const currentMonth = now.getMonth() + 1;
 
   // Create a map of month->year to total sales, excluding current month
   const salesByMonth = new Map<string, number>();
-  console.log("salesByMonth initial: ", salesByMonth);
   
-  // Group sales by month/year, excluding current month
-  // Extract year/month directly from sale date (YYYY-MM-DD format)
   sales.forEach(sale => {
     // Parse date manually from YYYY-MM-DD format to avoid timezone issues
-    const [yearStr, monthStr, dayStr] = sale.date.split('-');
+    const [yearStr, monthStr] = sale.date.split('-');
     const saleYear = parseInt(yearStr, 10);
     const saleMonth = parseInt(monthStr, 10);
     
-    console.log(`Processing sale date: ${sale.date}, parsed year: ${saleYear}, month: ${saleMonth}`);
-    
     // Skip if this is the current month (incomplete)
     if (saleYear === currentYear && saleMonth === currentMonth) {
-      console.log(`Skipping current month sale: ${sale.date}`);
       return;
     }
     
-    if (saleMonth === 3) console.log("TERMINO 3 : ", sale);
-    if (saleMonth === 2) console.log("TERMINO 2 : ", sale);
-    
-    // Format as YYYY-MM for consistent sorting
     const monthYearKey = `${saleYear}-${saleMonth.toString().padStart(2, '0')}`;
     const current = salesByMonth.get(monthYearKey) || 0;
     salesByMonth.set(monthYearKey, current + sale.sales);
   });
 
-  console.log("salesByMonth after processing: ", salesByMonth);
-  
   // Convert to array and sort by year/month descending (most recent first)
   const sortedMonths = Array.from(salesByMonth.entries())
-    .map(([monthYear, sales]) => ({
+    .map(([monthYear, salesAmount]) => ({
       monthYear,
-      sales: Number(sales)
+      sales: Number(salesAmount)
     }))
-    .sort((a, b) => b.monthYear.localeCompare(a.monthYear)); // Descending order
+    .sort((a, b) => b.monthYear.localeCompare(a.monthYear));
 
-  console.log("sortedMonths: ", sortedMonths);
-  
   // Need at least 2 completed months to calculate variation
   if (sortedMonths.length < 2) {
-    console.log("Not enough completed months: ", sortedMonths.length);
     return null;
   }
 
@@ -152,8 +135,7 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
   if (previous.sales === 0) {
     return mostRecent.sales > 0 ? 100 : 0;
   }
-  console.log("mostRecent.sales: ", mostRecent.sales);
-  console.log("previous.sales: ", previous.sales);
+  
   return ((mostRecent.sales - previous.sales) / previous.sales) * 100;
 }
 
@@ -169,8 +151,8 @@ export function calculateKPIsByCustomer(sales: Sale[], customers: Customer[]): M
     salesByCustomer.set(sale.customerId, existing);
   });
   
-  salesByCustomer.forEach((salesCustomer, customerId) => {
-    const kpis = calculateKPIs(salesCustomer, []); // Pass empty times array for now
+  salesByCustomer.forEach((salesForCustomer, customerId) => {
+    const kpis = calculateKPIs(salesForCustomer, []);
     kpisByCustomer.set(customerId, kpis);
   });
   
@@ -189,23 +171,28 @@ export function calculateKPIsByProduct(sales: Sale[], products: Product[]): Map<
     salesByProduct.set(sale.productId, existing);
   });
   
-  salesByProduct.forEach((salesProduct, productId) => {
-    const kpis = calculateKPIs(salesProduct, []); // Pass empty times array for now
+  salesByProduct.forEach((salesForProduct, productId) => {
+    const kpis = calculateKPIs(salesForProduct, []);
     kpisByProduct.set(productId, kpis);
   });
   
   return kpisByProduct;
 }
 
-// Chart data for sales by date
-export function getSalesByDateChartData(sales: Sale[]): { date: string; sales: number; costs: number; margin: number }[] {
+// ==================== Chart Data ====================
+
+export function getSalesByDateChartData(
+  sales: Sale[], 
+  grouping: ChartGrouping = 'day'
+): { date: string; sales: number; costs: number; margin: number }[] {
   const dataByDate = new Map<string, { sales: number; costs: number }>();
   
   sales.forEach(sale => {
-    const existing = dataByDate.get(sale.date) || { sales: 0, costs: 0 };
+    const groupKey = getGroupKey(sale.date, grouping);
+    const existing = dataByDate.get(groupKey) || { sales: 0, costs: 0 };
     existing.sales += sale.sales;
     existing.costs += sale.costs;
-    dataByDate.set(sale.date, existing);
+    dataByDate.set(groupKey, existing);
   });
   
   return Array.from(dataByDate.entries())
@@ -216,6 +203,34 @@ export function getSalesByDateChartData(sales: Sale[]): { date: string; sales: n
       margin: data.sales - data.costs,
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function getGroupKey(dateStr: string, grouping: ChartGrouping): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  
+  if (grouping === 'day') {
+    return dateStr;
+  }
+  
+  if (grouping === 'week') {
+    const firstDayOfYear = new Date(year, 0, 1);
+    const pasteDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+    const weekNum = Math.ceil((pasteDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+    return `${year}-W${weekNum.toString().padStart(2, '0')}`;
+  }
+  
+  if (grouping === 'month') {
+    return `${year}-${month.toString().padStart(2, '0')}`;
+  }
+  
+  if (grouping === 'quarter') {
+    const quarter = Math.ceil(month / 3);
+    return `${year}-Q${quarter}`;
+  }
+  
+  return dateStr;
 }
 
 export function getSalesByCustomerChartData(sales: Sale[], customers: Customer[]): { name: string; value: number }[] {
