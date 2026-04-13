@@ -83,3 +83,15 @@ export interface User {
   name: string;
   role: Role;
 }
+
+export interface FileUpload {
+  file: File;
+  status: 'pending' | 'loading' | 'success' | 'error';
+  error?: string;
+  type: 'customers' | 'products' | 'times' | 'sales';
+}
+
+export interface FileListProps {
+  files: FileUpload[];
+  removeFile: (file: File) => void;
+}

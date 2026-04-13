@@ -23,7 +23,6 @@ test.describe('Dashboard Page', () => {
   });
 
   test('should have a visible header with h1', async ({ page }) => {
-    // Use specific locator for header h1 to avoid ambiguity with welcome message
     const headerH1 = page.locator('header h1');
     await expect(headerH1).toBeVisible();
     await expect(headerH1).toHaveText('Data Dashboard');
@@ -32,7 +31,7 @@ test.describe('Dashboard Page', () => {
   test('should not display KPI section when data is not loaded', async ({ page }) => {
     const kpiSection = page.getByText('KPIs', { exact: true });
     await expect(kpiSection).not.toBeVisible();
-  });  // pnpm test:e2e --debug
+  }); 
 
   test('should have a visible sidebar navigation', async ({ page }) => {
     const sidebar = page.locator('aside');
@@ -93,7 +92,6 @@ test.describe('CSV Upload', () => {
     await expect(page.locator('[data-testid="sales-by-product"]')).toBeVisible({ timeout: 15000 });
 
     // Clear data using button text (more reliable than testid)
-    //const clearBtn = page.getByRole('button', { name: 'Clear' });
     const clearBtn = page.locator('[data-testid="clear-data-button"]');
     await expect(clearBtn).toBeVisible({ timeout: 10000 });
     await clearBtn.click();
@@ -104,14 +102,14 @@ test.describe('CSV Upload', () => {
     await expect(page.locator('[data-testid="sales-by-date"]')).not.toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="sales-by-product"]')).not.toBeVisible({ timeout: 5000 });
 
-     // Second upload with different file
-     await fileInput.setInputFiles('data-files/hechos-4.csv');
-     await expect(processBtn).toBeVisible({ timeout: 5000 });
-     await processBtn.click();
-     // Wait for KPIs to appear after processing
-     await expect(page.getByText('KPIs', { exact: true })).toBeVisible({ timeout: 15000 });
-     await expect(page.locator('[data-testid="sales-by-customer"]')).toBeVisible({ timeout: 15000 });
-     await expect(page.locator('[data-testid="sales-by-date"]')).toBeVisible({ timeout: 15000 });
-     await expect(page.locator('[data-testid="sales-by-product"]')).toBeVisible({ timeout: 15000 });
+    // Second upload with different file
+    await fileInput.setInputFiles('data-files/hechos-4.csv');
+    await expect(processBtn).toBeVisible({ timeout: 5000 });
+    await processBtn.click();
+    // Wait for KPIs to appear after processing
+    await expect(page.getByText('KPIs', { exact: true })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="sales-by-customer"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="sales-by-date"]')).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="sales-by-product"]')).toBeVisible({ timeout: 15000 });
   });
 });
