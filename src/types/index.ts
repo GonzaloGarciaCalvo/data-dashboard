@@ -23,7 +23,7 @@ export interface Time {
 
 export interface Sale {
   date: string;
-  year: string;
+  year?: string;
   customerId: string;
   productId: string;
   sales: number;

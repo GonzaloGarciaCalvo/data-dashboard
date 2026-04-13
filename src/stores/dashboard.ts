@@ -8,45 +8,39 @@ export type PeriodOption = 'annual' | 'quarterly' | 'monthly' | 'current' | 'man
 
 export type ChartGrouping = 'day' | 'week' | 'month' | 'quarter';
 
-interface DashboardState {
-  // Loaded data
+interface DashboardData {
   customers: Customer[];
   products: Product[];
   times: Time[];
   sales: Sale[];
-  
-  // Filter period
   period: PeriodOption;
   manualMonths: number;
   chartGrouping: ChartGrouping;
-  
-  // Calculated KPIs
   kpis: CalculatedKPI[];
-  
-  // Chart data
   salesByDate: { date: string; sales: number; costs: number; margin: number }[];
   salesByCustomer: { name: string; value: number }[];
   salesByProduct: { name: string; value: number }[];
-  
-  // Loading state
   isLoading: boolean;
   error: string | null;
-  
-  // Actions
+}
+
+interface DashboardActions {
   setCustomers: (customers: Customer[]) => void;
   setProducts: (products: Product[]) => void;
   setTimes: (times: Time[]) => void;
   setSales: (sales: Sale[]) => void;
   setPeriod: (period: PeriodOption) => void;
   setManualMonths: (manualMonths: number) => void;
-  setChartGrouping: (grouping: ChartGrouping) => void;
+  setChartGrouping: (chartGrouping: ChartGrouping) => void;
   calculateAll: () => void;
   reset: () => void;
-  setLoading: (loading: boolean) => void;
+  setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
 }
 
-const initialState: DashboardState = {
+type DashboardState = DashboardData & DashboardActions;
+
+const initialState: DashboardData = {
   customers: [],
   products: [],
   times: [],
@@ -60,106 +54,113 @@ const initialState: DashboardState = {
   salesByProduct: [],
   isLoading: false,
   error: null,
-  setCustomers: () => {},
-  setProducts: () => {},
-  setTimes: () => {},
-  setSales: () => {},
-  setPeriod: () => {},
-  setManualMonths: () => {},
-  setChartGrouping: () => {},
-  calculateAll: () => {},
-  reset: () => {},
-  setLoading: () => {},
-  setError: () => {},
 };
 
 export const useDashboardStore = create<DashboardState>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
-      
-      setCustomers: (customers) => {
-        set({ customers });
-        get().calculateAll();
-      },
-      
-      setProducts: (products) => {
-        set({ products });
-        get().calculateAll();
-      },
-      
-      setTimes: (times) => {
-        set({ times });
-      },
-      
-      setSales: (sales) => {
-        set({ sales });
-        get().calculateAll();
-      },
-      
-      setPeriod: (period) => {
-        set({ period });
-        get().calculateAll();
-      },
-      
-      setManualMonths: (manualMonths) => {
-        set({ manualMonths });
-        get().calculateAll();
-      },
-      
-      setChartGrouping: (chartGrouping) => {
-        set({ chartGrouping });
-        get().calculateAll();
-      },
-      
-      calculateAll: () => {
-        const { customers, products, sales, times, period, manualMonths, chartGrouping } = get();
-        
-        if (sales.length === 0) {
-          return;
-        }
-        
-        // Filter sales based on period
-        const filteredSales = filterSalesByPeriod(sales, period, manualMonths);
-        
-        // Calculate KPIs (now passing both sales and times)
-        const kpis = calculateKPIs(filteredSales, times);
-        
-        // Calculate chart data with grouping
-        const salesByDate = getSalesByDateChartData(filteredSales, chartGrouping);
-        const salesByCustomer = getSalesByCustomerChartData(filteredSales, customers);
-        const salesByProduct = getSalesByProductChartData(filteredSales, products);
-        
-        set({
-          kpis,
-          salesByDate,
-          salesByCustomer,
-          salesByProduct,
-        });
-      },
-      
-      reset: () => {
-        set(initialState);
-      },
-      
-      setLoading: (isLoading) => set({ isLoading }),
-      
-      setError: (error) => set({ error })
-    }),
-    {
-      name: 'dashboard-storage',
-      partialize: (state) => ({
-        customers: state.customers,
-        products: state.products,
-        times: state.times,
-        sales: state.sales,
-        kpis: state.kpis,
-        salesByDate: state.salesByDate,
-        salesByCustomer: state.salesByCustomer,
-        salesByProduct: state.salesByProduct,
-      })
-    }
-  )
+	persist(
+		(set, get) => ({
+			...initialState,
+
+			setCustomers: (customers) => {
+				set({ customers });
+				get().calculateAll();
+			},
+
+			setProducts: (products) => {
+				set({ products });
+				get().calculateAll();
+			},
+
+			setTimes: (times) => {
+				set({ times });
+			},
+
+			setSales: (sales) => {
+				try {
+					set({ sales });
+					get().calculateAll();
+				} catch (error) {
+					console.error("[setSales] ERROR:", error);
+					throw error;
+				}
+			},
+
+			setPeriod: (period: PeriodOption) => {
+				set({ period });
+				get().calculateAll();
+			},
+
+			setManualMonths: (manualMonths: number) => {
+				set({ manualMonths });
+				get().calculateAll();
+			},
+
+			setChartGrouping: (chartGrouping) => {
+				set({ chartGrouping });
+				get().calculateAll();
+			},
+
+			calculateAll: () => {
+				const {
+					customers,
+					products,
+					sales,
+					times,
+					period,
+					manualMonths,
+					chartGrouping,
+				} = get();
+
+				// Filter sales based on period (handle empty sales array)
+				const filteredSales = filterSalesByPeriod(sales, period, manualMonths);
+
+				// Calculate KPIs (now passing both sales and times)
+				const kpis = calculateKPIs(filteredSales, times);
+
+				// Calculate chart data with grouping
+				const salesByDate = getSalesByDateChartData(
+					filteredSales,
+					chartGrouping
+				);
+				const salesByCustomer = getSalesByCustomerChartData(
+					filteredSales,
+					customers
+				);
+				const salesByProduct = getSalesByProductChartData(
+					filteredSales,
+					products
+				);
+
+				set({
+					kpis,
+					salesByDate,
+					salesByCustomer,
+					salesByProduct,
+				});
+			},
+
+			reset: () => {
+				set(initialState);
+			},
+
+			setLoading: (isLoading) => set({ isLoading }),
+
+			setError: (error) => set({ error }),
+		}),
+		{
+			name: "dashboard-storage",
+			partialize: (state) => ({
+				customers: state.customers,
+				products: state.products,
+				times: state.times,
+				sales: state.sales,
+				kpis: state.kpis,
+				salesByDate: state.salesByDate,
+				salesByCustomer: state.salesByCustomer,
+				salesByProduct: state.salesByProduct,
+			}),
+		}
+	)
 );
 
 // Filter sales based on selected period
@@ -168,26 +169,29 @@ function filterSalesByPeriod(
   period: PeriodOption,
   manualMonths: number
 ): Sale[] {
+  // Filter out null or undefined sales entries
+  const validSales = sales.filter((sale): sale is Sale => sale !== null && sale !== undefined);
+  
   // All - return all data available
   if (period === 'all') {
-    return sales;
+    return validSales;
   }
   
   // Annual - current year only
   if (period === 'annual') {
     const currentYear = new Date().getFullYear().toString();
-    return sales.filter(sale => sale.date.startsWith(currentYear));
+    return validSales.filter(sale => sale.date.startsWith(currentYear));
   }
   
   // Current - current month (may have partial data)
   if (period === 'current') {
-    return sales;
+    return validSales;
   }
   
-  const monthsWithData = getUniqueMonths(sales);
+  const monthsWithData = getUniqueMonths(validSales);
   
   if (monthsWithData.length === 0) {
-    return sales;
+    return validSales;
   }
   
   let monthsToInclude: string[];
@@ -204,7 +208,7 @@ function filterSalesByPeriod(
   }
   
   // Filter sales to only include those from selected months
-  return sales.filter(sale => {
+  return validSales.filter(sale => {
     const [year, month] = sale.date.split('-');
     const monthKey = `${year}-${month}`;
     return monthsToInclude.includes(monthKey);

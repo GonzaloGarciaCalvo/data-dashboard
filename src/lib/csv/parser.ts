@@ -46,32 +46,26 @@ export async function parseCSVFile<T>(file: File): Promise<T[]> {
       transformHeader: (header) => header.trim(),
       transform: (value) => value?.trim() || '',
       complete: (results) => {
-        const data = results.data.map((row: Record<string, string>) => {
+        const data = results.data.map((row) => {
           const converted: Record<string, string | number> = {};
           
-          for (const [key, val] of Object.entries(row)) {
-            // Normalize key to English
-            const englishKey = normalizeKey(key);
+            for (const [key, val] of Object.entries(row as Record<string, unknown>)) {
+             // Normalize key to English
+            const englishKey = normalizeKey(key as string);
             
-            // Convert numeric fields
+             // Convert numeric fields
             const lowerKey = englishKey.toLowerCase();
             if (lowerKey === 'sales' || lowerKey === 'costs' || lowerKey === 'units') {
-              converted[englishKey] = parseNumber(val);
+              converted[englishKey] = parseNumber(val as string | number);
             } else {
-              converted[englishKey] = val;
+              converted[englishKey] = val as string;
             }
           }
-          
           return converted as T;
         });
         
         if (results.errors.length > 0) {
           console.warn('CSV Parse Warnings:', results.errors);
-        }
-        
-        // Debug: log first row to check
-        if (data.length > 0) {
-          console.log('Parsed data sample:', data[0]);
         }
         
         resolve(data);

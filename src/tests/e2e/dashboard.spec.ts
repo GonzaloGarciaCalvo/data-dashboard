@@ -67,7 +67,7 @@ test.describe('CSV Upload', () => {
   test('should accept file through file input', async ({ page }) => {
     const fileInput = page.locator('input[type="file"]');
     await expect(fileInput).toBeAttached();
-    await fileInput.setInputFiles('src/tests/hechos-4.csv');
+    await fileInput.setInputFiles('data-files/datos2.csv');
     const processBtn = page.getByRole('button', { name: 'Process Files' });
     await expect(processBtn).toBeVisible();
     await processBtn.click();

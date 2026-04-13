@@ -4,14 +4,17 @@ import type { ChartGrouping } from '@/stores/dashboard';
 // ==================== KPI Calculation ====================
 
 export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
-  if (sales.length === 0) {
+  // Filter out null or undefined sales entries
+  const validSales = sales.filter((sale): sale is Sale => sale !== null && sale !== undefined);
+  
+  if (validSales.length === 0) {
     return [];
   }
-
+  
   // Calculate totals
-  const totalSales = sales.reduce((sum, s) => sum + s.sales, 0);
-  const totalCosts = sales.reduce((sum, s) => sum + s.costs, 0);
-  const totalUnits = sales.reduce((sum, s) => sum + s.units, 0);
+  const totalSales = validSales.reduce((sum, s) => sum + s.sales, 0);
+  const totalCosts = validSales.reduce((sum, s) => sum + s.costs, 0);
+  const totalUnits = validSales.reduce((sum, s) => sum + s.units, 0);
   
   // Calculate margin
   const grossMargin = totalSales - totalCosts;
@@ -19,7 +22,7 @@ export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
   const costOfSalePercentage = totalSales > 0 ? (totalCosts / totalSales) * 100 : 0;
   
   // Calculate average
-  const averageSale = totalSales / sales.length;
+  const averageSale = totalSales / validSales.length;
   
   // Calculate Monthly Variation (last 2 completed months)
   const monthlyVariation = calculateMonthlyVariation(sales, times);
@@ -87,7 +90,10 @@ function formatCurrency(value: number): string {
 
 // Calculate monthly variation between last 2 completed months
 function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null {
-  if (sales.length === 0) {
+  // Filter out null or undefined sales entries
+  const validSales = sales.filter((sale): sale is Sale => sale !== null && sale !== undefined);
+  
+  if (validSales.length === 0) {
     return null;
   }
 
@@ -98,8 +104,8 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
 
   // Create a map of month->year to total sales, excluding current month
   const salesByMonth = new Map<string, number>();
-  
-  sales.forEach(sale => {
+   
+  validSales.forEach(sale => {
     // Parse date manually from YYYY-MM-DD format to avoid timezone issues
     const [yearStr, monthStr] = sale.date.split('-');
     const saleYear = parseInt(yearStr, 10);

@@ -12,7 +12,6 @@ const groupOptions: { label: string; value: ChartGrouping }[] = [
 
 export function ChartGroupSelector() {
   const { period, manualMonths, chartGrouping, setChartGrouping } = useDashboardStore();
-
   // Determine available groupings based on period
   const available = period === 'all' || period === 'annual' || period === 'quarterly'
     ? ['quarter', 'month', 'week'] as ChartGrouping[]

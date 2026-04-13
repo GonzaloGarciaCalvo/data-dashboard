@@ -27,10 +27,14 @@ export function PeriodSelector({ onChange }: PeriodSelectorProps) {
   const getMaxMonths = (): number => {
     if (sales.length === 0) return 12;
     const months = new Set<string>();
+    
     sales.forEach(sale => {
-      const [year, month] = sale.date.split('-');
-      months.add(`${year}-${month}`);
+      if (sale && sale.date) {
+        const [year, month] = sale.date.split('-');
+        months.add(`${year}-${month}`);
+      }
     });
+    
     return Math.max(months.size, 1);
   };
 

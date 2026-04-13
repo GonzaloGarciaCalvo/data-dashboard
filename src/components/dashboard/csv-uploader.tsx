@@ -21,16 +21,26 @@ const MAX_SIZE_MB = 5;
 export function CSVUploader() {
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const { setCustomers, setProducts, setTimes, setSales, isLoading, setLoading, setError } = useDashboardStore();
+  const [hasHadData, setHasHadData] = useState(false);
+   /* const { setCustomers, setProducts, setTimes, setSales, isLoading, setLoading, setError, reset, sales } = useDashboardStore(); */
+const setCustomers = useDashboardStore(state => state.setCustomers);
+const setProducts = useDashboardStore(state => state.setProducts);
+const setTimes = useDashboardStore(state => state.setTimes);
+const setSales = useDashboardStore(state => state.setSales);
+const isLoading = useDashboardStore(state => state.isLoading);
+const setLoading = useDashboardStore(state => state.setLoading);
+const setError = useDashboardStore(state => state.setError);
+const reset = useDashboardStore(state => state.reset);
+const sales = useDashboardStore(state => state.sales);
 
-  const detectFileType = (filename: string): FileUpload['type'] => {
+const detectFileType = (filename: string): FileUpload['type'] => {
     const lower = filename.toLowerCase();
     if (lower.includes('customer') || lower.includes('cliente') || lower.includes('dimclientes')) return 'customers';
     if (lower.includes('product') || lower.includes('dimproductos')) return 'products';
     if (lower.includes('time') || lower.includes('tiempo') || lower.includes('dimtiempo')) return 'times';
     if (lower.includes('sale') || lower.includes('hecho') || lower.includes('fact')) return 'sales';
     return 'sales'; // default
-  };
+};
 
   const handleFiles = useCallback((fileList: FileList) => {
     const newFiles: FileUpload[] = Array.from(fileList).map(file => ({
@@ -39,7 +49,7 @@ export function CSVUploader() {
       type: detectFileType(file.name),
     }));
     setFiles(prev => [...prev, ...newFiles]);
-  }, []);
+  }, [detectFileType]);
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -73,7 +83,6 @@ export function CSVUploader() {
   const processFiles = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     const processFile = async (fileUpload: FileUpload): Promise<{ type: FileUpload['type']; data: unknown[] }> => {
       setFiles(prev => prev.map(f => 
         f.file === fileUpload.file ? { ...f, status: 'loading' } : f
@@ -111,6 +120,7 @@ export function CSVUploader() {
 
         return { type: fileUpload.type, data };
       } catch (error) {
+        console.log("ERROR EN CATCH DE processFile: ", error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         setFiles(prev => prev.map(f => 
           f.file === fileUpload.file ? { ...f, status: 'error', error: errorMessage } : f
@@ -121,23 +131,22 @@ export function CSVUploader() {
 
     try {
       const results = await Promise.all(files.map(processFile));
-
-      results.forEach(result => {
-        switch (result.type) {
-          case 'customers':
-            setCustomers(result.data as Customer[]);
-            break;
-          case 'products':
-            setProducts(result.data as Product[]);
-            break;
-          case 'times':
-            setTimes(result.data as Time[]);
-            break;
-          case 'sales':
-            setSales(result.data as Sale[]);
-            break;
-        }
-      });
+      results.forEach((result) => {
+					switch (result.type) {
+						case "customers":
+							setCustomers(result.data as Customer[]);
+							break;
+						case "products":
+							setProducts(result.data as Product[]);
+							break;
+						case "times":
+							setTimes(result.data as Time[]);
+							break;
+						case "sales":
+							setSales(result.data as Sale[]);
+							break;
+					}
+				});
 
       setError(null);
     } catch (error) {
@@ -240,26 +249,33 @@ export function CSVUploader() {
             </div>
           )}
 
-          {/* Process button */}
-          {files.length > 0 && (
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setFiles([])}
-                disabled={isLoading}
-              >
-                Clear
-              </Button>
-              <Button
-                type="button"
-                onClick={processFiles}
-                disabled={isLoading || files.every(f => f.status === 'success')}
-              >
-                {isLoading ? 'Processing...' : 'Process Files'}
-              </Button>
-            </div>
-          )}
+           {/* Process button */}
+           {files.length > 0 && (
+             <div className="flex justify-end gap-2">
+               <Button
+                 type="button"
+                 variant="outline"
+                 onClick={() => {
+                   setFiles([]);
+                   reset();
+                   // Small delay to ensure reset is fully processed
+                   setTimeout(() => {
+                     // This helps ensure Zustand subscriptions are reset properly
+                   }, 50);
+                 }}
+                 disabled={isLoading}
+               >
+                 Clear
+               </Button>
+               <Button
+                 type="button"
+                 onClick={processFiles}
+                 disabled={isLoading || files.every(f => f.status === 'success')}
+               >
+                 {isLoading ? 'Processing...' : 'Process Files'}
+               </Button>
+             </div>
+           )}
         </div>
       </CardContent>
     </Card>
