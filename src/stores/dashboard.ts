@@ -183,10 +183,16 @@ function filterSalesByPeriod(
     return validSales.filter(sale => sale.date.startsWith(currentYear));
   }
   
-  // Current - current month (may have partial data)
-  if (period === 'current') {
-    return validSales;
-  }
+   // Current - current month (may have partial data)
+   if (period === 'current') {
+     const now = new Date();
+     const currentYear = now.getFullYear().toString();
+     const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+     return validSales.filter(sale => {
+       const [year, month] = sale.date.split('-');
+       return year === currentYear && month === currentMonth;
+     });
+   }
   
   const monthsWithData = getUniqueMonths(validSales);
   

@@ -34,7 +34,13 @@ export function Header({ hasData, onClearData, sidebarOpen, onToggleSidebar }: H
               <div className="hidden md:block">
                 <PeriodSelector />
               </div>
-              <Button type="button" variant="outline" size="sm" onClick={onClearData}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={onClearData}
+                data-testid="clear-data-button"
+              >
                 <LogOut className="h-4 w-4 mr-2 dark:text-slate-50" />
                 <span className="hidden sm:inline dark:text-slate-50">Clear Data</span>
               </Button>
