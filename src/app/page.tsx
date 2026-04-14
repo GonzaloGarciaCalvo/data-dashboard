@@ -2,12 +2,8 @@
 
 import { useState } from 'react';
 import { useDashboardStore } from '@/stores/dashboard';
-import { CSVUploader } from '@/components/dashboard/csv-uploader';
-import { KPIGrid } from '@/components/dashboard/kpi-grid';
-import { SalesAnalysis } from '@/components/charts/sales-analysis';
 import { Header } from '@/components/header';
 import { Sidebar } from '@/components/sidebar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InitialState } from '@/components/dashboard/InitialState';
 import { DashboardWithData } from '@/components/dashboard/DashboardWithData';
 

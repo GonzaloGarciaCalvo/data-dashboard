@@ -1,5 +1,4 @@
 import { FileUpload } from "@/types";
-import { useCallback } from "react";
 
 export const detectFileType = (filename: string): FileUpload['type'] => {
     const lower = filename.toLowerCase();
