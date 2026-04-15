@@ -13,6 +13,7 @@ interface UseFileProcessorProps {
 }
 
 export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
+  // Hook for validation, parsing, store activation
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [parseErrors, setParseErrors] = useState<Array<{ file: File; errors: any[] }>>([]);

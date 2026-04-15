@@ -3,9 +3,9 @@
 import { useState, useCallback, DragEvent } from 'react';
 import type { FileUpload } from '@/types';
 import { detectFileType } from '@/lib/csv/detectFileType';
-import { Preahvihear } from 'next/font/google';
 
 export function useFileHandler() {
+  // Hook for drag/drop, selección
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -29,9 +29,6 @@ export function useFileHandler() {
     e.stopPropagation();
     setIsDragging(true);
   }, []);
-  /* const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
-  // your code here
-}, []); */
 
   const handleDragLeave = useCallback((e: DragEvent) => {
     e.preventDefault();

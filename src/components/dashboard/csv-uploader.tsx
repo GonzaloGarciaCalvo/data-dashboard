@@ -1,24 +1,20 @@
 'use client';
 
-import { useState, useCallback } from 'react';
 import { Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileList } from './file-list';
 import { useFileHandler } from '@/hooks/useFileHandler';
 import { useFileProcessor } from '@/hooks/useFileProcessor';
-import type { FileUpload } from '@/types';
-import { useDashboardStore } from '@/stores/dashboard';
 
 const ALLOWED_TYPES = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
 const MAX_SIZE_MB = 5;
 
 export function CSVUploader() {
-  // Hook para manejar archivos (drag/drop, selección) - ahora manejamos el estado aquí
+  
   const {
     files,
     isDragging,
-    handleFiles,
     handleFileSelect,
     handleDragOver,
     handleDragLeave,
@@ -27,20 +23,17 @@ export function CSVUploader() {
     setFiles: handlerSetFiles
   } = useFileHandler();
 
-  // Hook para procesar archivos (validación, parsing, actualización de store)
   const {isLoading,
     error,
     processFiles,
     resetAll,
     parseErrors,
-    clearParseErrors,
     continueProcessing
   } = useFileProcessor({ 
     files, 
     setFiles: handlerSetFiles 
   });
 
-  console.log("[CSVUploader] error: ", parseErrors);
   return (
     <Card className="w-full">
       <CardHeader>
@@ -84,7 +77,6 @@ export function CSVUploader() {
           </label>
           <FileList files={files} removeFile={handlerRemoveFile} />
           
-          {/* Process button */}
           {files.length > 0 && (
             <div className="flex justify-end gap-2">
               <Button
@@ -105,7 +97,6 @@ export function CSVUploader() {
             </div>
           )}
           
-          {/* Error message from processor */}
           {parseErrors.length > 0 && (
             <div className="p-3 text-white bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 rounded-md text-sm">
               {error} -- HAY ERROR
