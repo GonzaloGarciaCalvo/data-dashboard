@@ -9,6 +9,7 @@ export interface Customer {
 
 export interface Product {
   productId: string;
+  name: string;
   category: string;
   brand: string;
 }

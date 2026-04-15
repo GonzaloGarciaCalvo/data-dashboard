@@ -24,7 +24,7 @@ export function useFileHandler() {
     }
   }, [handleFiles]);
 
-  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
@@ -33,13 +33,13 @@ export function useFileHandler() {
   // your code here
 }, []); */
 
-  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+  const handleDragLeave = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback((e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -52,6 +52,7 @@ export function useFileHandler() {
   const removeFile = useCallback((file: File) => {
     setFiles(prev => prev.filter(f => f.file !== file));
   }, []);
+
 
   return {
     files,

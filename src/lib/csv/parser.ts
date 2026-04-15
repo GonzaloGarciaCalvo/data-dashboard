@@ -38,11 +38,17 @@ function normalizeKey(key: string): string {
   return columnMap[trimmed] || key;
 }
 
-export async function parseCSVFile<T>(file: File): Promise<T[]> {
-  return new Promise((resolve, reject) => {
+// Interface for parse result
+interface ParseResult<T> {
+  data: T[];
+  errors: any[];
+}
+
+export async function parseCSVFile<T>(file: File): Promise<ParseResult<T>> {
+  return new Promise((resolve) => {
     Papa.parse(file, {
       header: true,
-      skipEmptyLines: true,
+      skipEmptyLines: "greedy", // Handle lines with only commas/whitespace
       transformHeader: (header) => header.trim(),
       transform: (value) => value?.trim() || '',
       complete: (results) => {
@@ -50,10 +56,10 @@ export async function parseCSVFile<T>(file: File): Promise<T[]> {
           const converted: Record<string, string | number> = {};
           
             for (const [key, val] of Object.entries(row as Record<string, unknown>)) {
-             // Normalize key to English
+            // Normalize key to English
             const englishKey = normalizeKey(key as string);
             
-             // Convert numeric fields
+            // Convert numeric fields
             const lowerKey = englishKey.toLowerCase();
             if (lowerKey === 'sales' || lowerKey === 'costs' || lowerKey === 'units') {
               converted[englishKey] = parseNumber(val as string | number);
@@ -63,34 +69,41 @@ export async function parseCSVFile<T>(file: File): Promise<T[]> {
           }
           return converted as T;
         });
-        
-        if (results.errors.length > 0) {
-          console.warn('CSV Parse Warnings:', results.errors);
-        }
-        
-        resolve(data);
+        //console.log("[parser error]", results.errors);
+        resolve({
+          data: data,
+          errors: results.errors
+        });
       },
       error: (error) => {
         console.error('CSV Parse Error:', error);
-        reject(error);
+        resolve({
+          data: [],
+          errors: [error]
+        });
       },
     });
   });
 }
 
-export async function parseCustomers(file: File): Promise<Customer[]> {
+type ParseResultType<T> = {
+  data: T[];
+  errors: string[];
+};
+
+export async function parseCustomers(file: File): Promise<ParseResult<Customer>> {
   return parseCSVFile<Customer>(file);
 }
 
-export async function parseProducts(file: File): Promise<Product[]> {
+export async function parseProducts(file: File): Promise<ParseResult<Product>> {
   return parseCSVFile<Product>(file);
 }
 
-export async function parseTimes(file: File): Promise<Time[]> {
+export async function parseTimes(file: File): Promise<ParseResult<Time>> {
   return parseCSVFile<Time>(file);
 }
 
-export async function parseSales(file: File): Promise<Sale[]> {
+export async function parseSales(file: File): Promise<ParseResult<Sale>> {
   return parseCSVFile<Sale>(file);
 }
 

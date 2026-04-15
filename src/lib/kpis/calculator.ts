@@ -1,32 +1,58 @@
 import type { Sale, CalculatedKPI, Customer, Product, Time } from '@/types';
 import type { ChartGrouping } from '@/stores/dashboard';
 
+// ==================== Helper Functions for Consistent English Formatting ====================
+// Since the app is in English, we enforce US number formatting:
+// - Thousands separator: comma (,)
+// - Decimal separator: period (.)
+
+// Format a number as currency (USD) with no decimal places
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+// Format a number as percentage with 1 decimal place
+function formatPercentage(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value / 100); // Input is in percent (e.g. 15.5 for 15.5%), convert to ratio
+}
+
+// Format a plain number (e.g. units) with thousands separators
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
+}
+
 // ==================== KPI Calculation ====================
 
 export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
-  // Filter out null or undefined sales entries
   const validSales = sales.filter((sale): sale is Sale => sale !== null && sale !== undefined);
-  
+
   if (validSales.length === 0) {
     return [];
   }
-  
-  // Calculate totals
+
   const totalSales = validSales.reduce((sum, s) => sum + s.sales, 0);
   const totalCosts = validSales.reduce((sum, s) => sum + s.costs, 0);
   const totalUnits = validSales.reduce((sum, s) => sum + s.units, 0);
   
-  // Calculate margin
   const grossMargin = totalSales - totalCosts;
   const marginPercentage = totalSales > 0 ? (grossMargin / totalSales) * 100 : 0;
   const costOfSalePercentage = totalSales > 0 ? (totalCosts / totalSales) * 100 : 0;
   
-  // Calculate average
-  const averageSale = totalSales / validSales.length;
+  const { mean: averageAmount, stdDev: stdDeviation } = calculateStatistics(
+    validSales.map(s => s.sales)
+  );
   
-  // Calculate Monthly Variation (last 2 completed months)
   const monthlyVariation = calculateMonthlyVariation(sales, times);
-
+  
   return [
     {
       name: 'Total Sales',
@@ -49,43 +75,64 @@ export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
     {
       name: 'Margin %',
       value: marginPercentage,
-      formattedValue: `${marginPercentage.toFixed(1)}%`,
+      formattedValue: formatPercentage(marginPercentage),
       type: 'percentage',
     },
     {
       name: 'Cost of Sale %',
       value: costOfSalePercentage,
-      formattedValue: `${costOfSalePercentage.toFixed(1)}%`,
+      formattedValue: formatPercentage(costOfSalePercentage),
       type: 'percentage',
     },
     {
       name: 'Monthly Variation',
       value: monthlyVariation ?? 0,
-      formattedValue: monthlyVariation === null ? 'N/A' : `${monthlyVariation >= 0 ? '+' : ''}${Math.abs(monthlyVariation).toFixed(1)}%`,
+      formattedValue: monthlyVariation === null ? 'N/A' : `${monthlyVariation >= 0 ? '+' : ''}${formatPercentage(Math.abs(monthlyVariation ?? 0)).replace('%', '')}%`,
       type: 'percentage',
     },
     {
       name: 'Units Sold',
       value: totalUnits,
-      formattedValue: totalUnits.toLocaleString(),
+      formattedValue: formatNumber(totalUnits),
       type: 'number',
     },
     {
-      name: 'Average Sale',
-      value: averageSale,
-      formattedValue: formatCurrency(averageSale),
+      name: 'Average Amount',
+      value: averageAmount,
+      formattedValue: formatCurrency(averageAmount),
       type: 'currency',
+    },
+    {
+      name: 'Std Deviation',
+      value: stdDeviation,
+      formattedValue: formatCurrency(stdDeviation),
+      type: 'currency',
+      variation: stdDeviation // opcional: para mostrar variación en tooltip o gráfico
     },
   ];
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
+// Helper function to calculate mean and population standard deviation
+function calculateStatistics(values: number[]): { mean: number; stdDev: number } {
+  if (values.length === 0) {
+    return { mean: 0, stdDev: 0 };
+  }
+  
+  // Calculate sum in one pass
+  const sum = values.reduce((acc, v) => acc + v, 0);
+  const mean = sum / values.length;
+  
+  // Calculate sum of squared differences from the mean
+  const squaredDiffsSum = values.reduce((acc, v) => {
+    const diff = v - mean;
+    return acc + (diff * diff);
+  }, 0);
+  
+  // Population variance (divide by N)
+  const variance = squaredDiffsSum / values.length;
+  const stdDev = Math.sqrt(variance);
+  
+  return { mean, stdDev };
 }
 
 // Calculate monthly variation between last 2 completed months
@@ -104,7 +151,7 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
 
   // Create a map of month->year to total sales, excluding current month
   const salesByMonth = new Map<string, number>();
-   
+    
   validSales.forEach(sale => {
     // Parse date manually from YYYY-MM-DD format to avoid timezone issues
     const [yearStr, monthStr] = sale.date.split('-');
@@ -143,46 +190,6 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
   }
   
   return ((mostRecent.sales - previous.sales) / previous.sales) * 100;
-}
-
-// KPIs by customer
-export function calculateKPIsByCustomer(sales: Sale[], customers: Customer[]): Map<string, CalculatedKPI[]> {
-  const kpisByCustomer = new Map<string, CalculatedKPI[]>();
-  
-  const salesByCustomer = new Map<string, Sale[]>();
-  
-  sales.forEach(sale => {
-    const existing = salesByCustomer.get(sale.customerId) || [];
-    existing.push(sale);
-    salesByCustomer.set(sale.customerId, existing);
-  });
-  
-  salesByCustomer.forEach((salesForCustomer, customerId) => {
-    const kpis = calculateKPIs(salesForCustomer, []);
-    kpisByCustomer.set(customerId, kpis);
-  });
-  
-  return kpisByCustomer;
-}
-
-// KPIs by product
-export function calculateKPIsByProduct(sales: Sale[], products: Product[]): Map<string, CalculatedKPI[]> {
-  const kpisByProduct = new Map<string, CalculatedKPI[]>();
-  
-  const salesByProduct = new Map<string, Sale[]>();
-  
-  sales.forEach(sale => {
-    const existing = salesByProduct.get(sale.productId) || [];
-    existing.push(sale);
-    salesByProduct.set(sale.productId, existing);
-  });
-  
-  salesByProduct.forEach((salesForProduct, productId) => {
-    const kpis = calculateKPIs(salesForProduct, []);
-    kpisByProduct.set(productId, kpis);
-  });
-  
-  return kpisByProduct;
 }
 
 // ==================== Chart Data ====================
@@ -270,7 +277,7 @@ export function getSalesByProductChartData(sales: Sale[], products: Product[]): 
     .map(([productId, salesAmount]) => {
       const product = products.find(p => p.productId === productId);
       return {
-        name: product?.category || productId,
+        name: product?.name || productId,
         value: salesAmount,
       };
     })

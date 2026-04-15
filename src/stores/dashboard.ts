@@ -3,9 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { Customer, Product, Time, Sale, CalculatedKPI } from '@/types';
 import { calculateKPIs, getSalesByDateChartData, getSalesByCustomerChartData, getSalesByProductChartData } from '@/lib/kpis/calculator';
 
-// Period types
 export type PeriodOption = 'annual' | 'quarterly' | 'monthly' | 'current' | 'manual' | 'all';
-
 export type ChartGrouping = 'day' | 'week' | 'month' | 'quarter';
 
 interface DashboardData {
@@ -171,28 +169,22 @@ function filterSalesByPeriod(
 ): Sale[] {
   // Filter out null or undefined sales entries
   const validSales = sales.filter((sale): sale is Sale => sale !== null && sale !== undefined);
-  
-  // All - return all data available
   if (period === 'all') {
     return validSales;
   }
-  
-  // Annual - current year only
   if (period === 'annual') {
     const currentYear = new Date().getFullYear().toString();
     return validSales.filter(sale => sale.date.startsWith(currentYear));
   }
-  
-   // Current - current month (may have partial data)
-   if (period === 'current') {
-     const now = new Date();
-     const currentYear = now.getFullYear().toString();
-     const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
-     return validSales.filter(sale => {
-       const [year, month] = sale.date.split('-');
-       return year === currentYear && month === currentMonth;
-     });
-   }
+  if (period === 'current') {
+    const now = new Date();
+    const currentYear = now.getFullYear().toString();
+    const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+    return validSales.filter(sale => {
+      const [year, month] = sale.date.split('-');
+      return year === currentYear && month === currentMonth;
+    });
+  }
   
   const monthsWithData = getUniqueMonths(validSales);
   
@@ -203,13 +195,10 @@ function filterSalesByPeriod(
   let monthsToInclude: string[];
   
   if (period === 'monthly') {
-    // Last completed month
     monthsToInclude = monthsWithData.slice(-1);
   } else if (period === 'quarterly') {
-    // Last 3 completed months
     monthsToInclude = monthsWithData.slice(-3);
   } else if (period === 'manual') {
-    // Last N months (dynamic)
     monthsToInclude = monthsWithData.slice(-manualMonths);
   }
   

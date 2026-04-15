@@ -1,3 +1,5 @@
-IDProducto,Categoría,Marca
+idproducto,Producto,categorí
 P001,Bebidas,CocaCola
 P002,Snacks,Pepsico
+P003, Fideos, Matarazo
+P004,Bebidas,Sprite

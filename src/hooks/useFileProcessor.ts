@@ -15,7 +15,13 @@ interface UseFileProcessorProps {
 export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [parseErrors, setParseErrors] = useState<Array<{ file: File; errors: any[] }>>([]);
+  const [processedData, setProcessedData] = useState<Array<{ 
+    file: File; 
+    type: FileUpload['type']; 
+    data: unknown[] 
+  }>>([]);
+
   const { 
     setCustomers, 
     setProducts, 
@@ -26,14 +32,7 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
     reset 
   } = useDashboardStore();
 
-  const processFile = useCallback(async (fileUpload: FileUpload): Promise<{ 
-    type: FileUpload['type']; 
-    data: unknown[] 
-  }> => {
-    setFiles(prev => prev.map(f => 
-      f.file === fileUpload.file ? { ...f, status: 'loading' } : f
-    ));
-    
+  const parseFile = useCallback(async (fileUpload: FileUpload) => {
     try {
       // Validaciones
       if (!validateFileType(fileUpload.file, ['text/csv', 'application/vnd.ms-excel', 'text/plain'])) {
@@ -43,89 +42,127 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
       if (!validateFileSize(fileUpload.file, 5)) { // 5MB max
         throw new Error(`File exceeds maximum size of 5MB.`);
       }
-      
-      let data: unknown[] = [];
+
+      let result: { data: unknown[]; errors: any[] };
 
       switch (fileUpload.type) {
         case 'customers':
-          data = await parseCustomers(fileUpload.file);
+          result = await parseCustomers(fileUpload.file);
           break;
         case 'products':
-          data = await parseProducts(fileUpload.file);
+          result = await parseProducts(fileUpload.file);
           break;
         case 'times':
-          data = await parseTimes(fileUpload.file);
+          result = await parseTimes(fileUpload.file);
           break;
         case 'sales':
-          data = await parseSales(fileUpload.file);
+          result = await parseSales(fileUpload.file);
           break;
         default:
           throw new Error(`Unknown file type: ${fileUpload.type}`);
       }
 
-      setFiles(prev => prev.map(f => 
-        f.file === fileUpload.file ? { ...f, status: 'success' } : f
-      ));
-
-      return { type: fileUpload.type, data };
-    } catch (error) {
-      console.error("ERROR EN CATCH DE processFile: ", error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      setFiles(prev => prev.map(f => 
-        f.file === fileUpload.file ? { ...f, status: 'error', error: errorMessage } : f
-      ));
-      
-      throw error;
+      return { 
+        file: fileUpload.file, 
+        type: fileUpload.type, 
+        data: result.data, 
+        errors: result.errors 
+      };
+    } catch (err) {
+      throw err;
     }
-  }, [setFiles]); // Removed files dependency as it's only used in the setter callback
+  }, []);
 
   const processFiles = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    setStoreLoading(true);
-    setStoreError(null);
-    
+    setParseErrors([]);
+    setProcessedData([]);
+
     try {
-      const results = await Promise.all(files.map(processFile));
+      // Process all files in parallel
+      const results = await Promise.all(files.map(parseFile));
       
-      results.forEach((result) => {
-        switch (result.type) {
+      // Check for any parse errors
+      const filesWithErrors = results.filter(r => r.errors.length > 0);
+      console.log('[useFileProcessor] results: ', results);
+      if (filesWithErrors.length > 0) {
+        //console.error('[useFileProcessor] errors found: ', filesWithErrors);
+        // Store the errors and the processed data (so we can use if user chooses to continue)
+        setParseErrors(filesWithErrors.map(r => ({ 
+          file: r.file, 
+          errors: r.errors 
+        })));
+        setProcessedData(results); // Keep all results (including successful ones) for potential continuation
+        return;
+      }
+
+      // No parse errors - update store with all data
+      results.forEach(({ type, data }) => {
+        switch (type) {
           case "customers":
-            setCustomers(result.data as Customer[]);
+            setCustomers(data as Customer[]);
             break;
           case "products":
-            setProducts(result.data as Product[]);
+            setProducts(data as Product[]);
             break;
           case "times":
-            setTimes(result.data as Time[]);
+            setTimes(data as Time[]);
             break;
           case "sales":
-            setSales(result.data as Sale[]);
+            setSales(data as Sale[]);
             break;
         }
       });
-
-      setError(null);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error processing files';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error processing files';
       setError(errorMessage);
       setStoreError(errorMessage);
     } finally {
       setIsLoading(false);
       setStoreLoading(false);
     }
-  }, [files, processFile, setCustomers, setProducts, setTimes, setSales, setStoreLoading, setStoreError]);
+  }, [files, parseFile, setCustomers, setProducts, setTimes, setSales, setStoreLoading, setStoreError]);
+
+  const clearParseErrors = useCallback(() => {
+    setParseErrors([]);
+    setProcessedData([]);
+  }, []);
+
+  const continueProcessing = useCallback(() => {
+    // Update store with the processed data (ignoring errors)
+    processedData.forEach(({ type, data }) => {
+      switch (type) {
+        case "customers":
+          setCustomers(data as Customer[]);
+          break;
+        case "products":
+          setProducts(data as Product[]);
+          break;
+        case "times":
+          setTimes(data as Time[]);
+          break;
+        case "sales":
+          setSales(data as Sale[]);
+          break;
+      }
+    });
+    clearParseErrors();
+  }, [processedData, setCustomers, setProducts, setTimes, setSales, clearParseErrors]);
 
   const resetAll = useCallback(() => {
     setFiles([]);
     reset();
-  }, [reset, setFiles]);
+    clearParseErrors();
+  }, [reset, setFiles, clearParseErrors]);
 
   return {
     isLoading,
     error,
     processFiles,
-    resetAll
+    resetAll,
+    parseErrors,
+    clearParseErrors,
+    continueProcessing
   };
 }

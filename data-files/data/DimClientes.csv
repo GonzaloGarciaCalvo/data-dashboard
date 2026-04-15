@@ -1,4 +1,4 @@
-IDCliente,Nombre,Región,Segmento
+Idcliente,nombre,regi��n,seg
 C001,Empresa A,Norte,Retail
 C002,Empresa B,Sur,Mayorista
-C003,Empresa C,Oeste,Retail
+C003,Empresa C,Oeste,Retail,21

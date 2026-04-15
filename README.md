@@ -70,9 +70,33 @@ Groups data in charts by different time periods:
 - **CSV Parsing**: Papaparse
 
 ## CSV Format Expected
+
+The system accepts three main types of CSV files: **sales**, **customers**, and **products**. Each file type has its own expected column structure.
+
+### 📄 Sales Data (Main Fact Table)
+This is the primary data file containing transactional sales information.
 ```csv
 Fecha,Year,IDCliente,IDProducto,Ventas,Costos,Unidades,IDVenta
 2026-02-02,2026,C001,P001,1300,850,90,1
+2026-02-03,2026,C002,P002,950,600,50,2
+```
+
+### 👥 Customers Data (Dimension Table)
+Contains customer master data. Filename should include keywords like "customer", "cliente", or "dimclientes" for automatic type detection.
+```csv
+IDCliente,Nombre,Región,Segmento
+C001,Juan Pérez,Litoral,Premium
+C002,María González,Cuyo,Standard
+C003,Carlos López,Noreste,Basic
+```
+
+### 📦 Products Data (Dimension Table)
+Contains product master data. Filename should include keywords like "product", "producto", or "dimproductos" for automatic type detection.
+```csv
+IDProducto,Nombre,Marca,Categoría,Precio
+P001,Laptop Dell,Dell,Tecnología,1200.50
+P002,Mouse Logitech,Logitech,Accesorios,25.99
+P003,Teclado Mecánico,Keychron,Tecnología,89.99
 ```
 
 ### Column Mappings
@@ -119,3 +143,6 @@ src/
 └── tests/           # Test files
     ├── e2e/        # Playwright tests
 ```
+
+### Mocked data
+/data-files/data
