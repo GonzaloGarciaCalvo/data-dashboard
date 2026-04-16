@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@variant dark (&:where(.dark, .dark *)); 
+@variant dark (&:where(.dark, .dark *));
 /* Tailwind v4 handles dark mode automatically with 'dark:' prefix */
 /* No custom CSS needed - just use: dark:bg-slate-900, dark:text-white, etc. */
 

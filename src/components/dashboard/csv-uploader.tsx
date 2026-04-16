@@ -1,17 +1,22 @@
-'use client';
+"use client";
 
-import { Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileList } from './file-list';
-import { useFileHandler } from '@/hooks/useFileHandler';
-import { useFileProcessor } from '@/hooks/useFileProcessor';
+import { Upload } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { FileList } from "./file-list";
+import { useFileHandler } from "@/hooks/useFileHandler";
+import { useFileProcessor } from "@/hooks/useFileProcessor";
 
-const ALLOWED_TYPES = ['text/csv', 'application/vnd.ms-excel', 'text/plain'];
+const ALLOWED_TYPES = ["text/csv", "application/vnd.ms-excel", "text/plain"];
 const MAX_SIZE_MB = 5;
 
 export function CSVUploader() {
-  
   const {
     files,
     isDragging,
@@ -20,18 +25,19 @@ export function CSVUploader() {
     handleDragLeave,
     handleDrop,
     removeFile: handlerRemoveFile,
-    setFiles: handlerSetFiles
+    setFiles: handlerSetFiles,
   } = useFileHandler();
 
-  const {isLoading,
+  const {
+    isLoading,
     error,
     processFiles,
     resetAll,
     parseErrors,
-    continueProcessing
-  } = useFileProcessor({ 
-    files, 
-    setFiles: handlerSetFiles 
+    continueProcessing,
+  } = useFileProcessor({
+    files,
+    setFiles: handlerSetFiles,
   });
 
   return (
@@ -51,9 +57,9 @@ export function CSVUploader() {
           {/* Drop/upload area */}
           <label
             className={` p-8 text-center transition-colors flex flex-col ${
-              isDragging 
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' 
-                : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
+              isDragging
+                ? "border-blue-500 bg-blue-50 dark:bg-blue-900"
+                : "border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -76,7 +82,7 @@ export function CSVUploader() {
             </p>
           </label>
           <FileList files={files} removeFile={handlerRemoveFile} />
-          
+
           {files.length > 0 && (
             <div className="flex justify-end gap-2">
               <Button
@@ -90,27 +96,30 @@ export function CSVUploader() {
               <Button
                 type="button"
                 onClick={processFiles}
-                disabled={isLoading || files.every(f => f.status === 'success')}
+                disabled={
+                  isLoading || files.every((f) => f.status === "success")
+                }
               >
-                {isLoading ? 'Processing...' : 'Process Files'}
+                {isLoading ? "Processing..." : "Process Files"}
               </Button>
             </div>
           )}
-          
+
           {parseErrors.length > 0 && (
             <div className="p-3 text-white bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 rounded-md text-sm">
               {error} -- HAY ERROR
-              {parseErrors.map((err, idx) => ( 
+              {parseErrors.map((err, idx) => (
                 <div key={idx} className="mt-2">
-                  <strong>Error in file  {err.file.name}:</strong>
+                  <strong>Error in file {err.file.name}:</strong>
                   <ul className="list-disc list-inside mt-1 text-xs text-white dark:text-white">
                     {err.errors.map((e, i) => (
-                      <li key={i}>{e.message} in row {e.row}</li>
+                      <li key={i}>
+                        {e.message} in row {e.row}
+                      </li>
                     ))}
                   </ul>
                 </div>
               ))}
-
               <div className="mt-6 flex justify-end space-x-3">
                 <Button
                   variant="outline"

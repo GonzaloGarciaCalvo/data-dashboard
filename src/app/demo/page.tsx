@@ -1,35 +1,40 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Header } from '@/components/header';
-import { Sidebar } from '@/components/sidebar';
-import { InitialState } from '@/components/dashboard/InitialState';
-import { DashboardWithData } from '@/components/dashboard/DashboardWithData';
-import { useDashboardStore } from '@/stores/dashboard';
-import { mockedCustomers, mockedProducts, mockedSales, mockedTimes } from '@/lib/mockedData';
+import { useEffect, useState } from "react";
+import { Header } from "@/components/header";
+import { Sidebar } from "@/components/sidebar";
+import { DashboardWithData } from "@/components/dashboard/DashboardWithData";
+import { useDashboardStore } from "@/stores/dashboard";
+import {
+  mockedCustomers,
+  mockedProducts,
+  mockedSales,
+  mockedTimes,
+} from "@/lib/mockedData";
 
 export default function DemoPage() {
-  const { setCustomers, setProducts, setSales, setTimes, reset } = useDashboardStore();
+  const { setCustomers, setProducts, setSales, setTimes, reset } =
+    useDashboardStore();
 
   useEffect(() => {
-    sessionStorage.setItem('isDemo-data-dashboard', 'true')
+    sessionStorage.setItem("isDemo-data-dashboard", "true");
     reset();
     setTimes(mockedTimes);
     setCustomers(mockedCustomers);
     setProducts(mockedProducts);
     setSales(mockedSales);
     return () => {
-      sessionStorage.removeItem('isDemo-data-dashboard');
+      sessionStorage.removeItem("isDemo-data-dashboard");
       reset();
-      localStorage.removeItem('dashboard-storage');
-    }
+      localStorage.removeItem("dashboard-storage");
+    };
   }, [setCustomers, setProducts, setSales, setTimes, reset]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <Header 
+      <Header
         hasData={true}
         onClearData={reset}
         sidebarOpen={sidebarOpen}
@@ -37,7 +42,7 @@ export default function DemoPage() {
       />
 
       <div className="flex">
-        <Sidebar 
+        <Sidebar
           hasData={true}
           customers={mockedCustomers}
           products={mockedProducts}

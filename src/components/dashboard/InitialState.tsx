@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CSVUploader } from '@/components/dashboard/csv-uploader';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CSVUploader } from "@/components/dashboard/csv-uploader";
 
 export function InitialState() {
   return (
@@ -13,7 +13,7 @@ export function InitialState() {
         </p>
       </div>
       <CSVUploader />
-      
+
       {/* Expected format info */}
       <Card className="mt-6">
         <CardHeader>
@@ -21,10 +21,34 @@ export function InitialState() {
         </CardHeader>
         <CardContent>
           <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-            <li>• <strong className="text-slate-700 dark:text-slate-200">Customers:</strong> customerId, name, region, segment</li>
-            <li>• <strong className="text-slate-700 dark:text-slate-200">Products:</strong> productId, category, brand</li>
-            <li>• <strong className="text-slate-700 dark:text-slate-200">Times:</strong> (optional) timeId, date, month, quarter, year</li>
-            <li>• <strong className="text-slate-700 dark:text-slate-200">Sales:</strong> date, customerId, productId, sales, costs, units</li>
+            <li>
+              •{" "}
+              <strong className="text-slate-700 dark:text-slate-200">
+                Customers:
+              </strong>{" "}
+              customerId, name, region, segment
+            </li>
+            <li>
+              •{" "}
+              <strong className="text-slate-700 dark:text-slate-200">
+                Products:
+              </strong>{" "}
+              productId, category, brand
+            </li>
+            <li>
+              •{" "}
+              <strong className="text-slate-700 dark:text-slate-200">
+                Times:
+              </strong>{" "}
+              (optional) timeId, date, month, quarter, year
+            </li>
+            <li>
+              •{" "}
+              <strong className="text-slate-700 dark:text-slate-200">
+                Sales:
+              </strong>{" "}
+              date, customerId, productId, sales, costs, units
+            </li>
           </ul>
         </CardContent>
       </Card>

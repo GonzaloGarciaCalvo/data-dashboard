@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useDashboardStore } from '@/stores/dashboard';
-import { Header } from '@/components/header';
-import { Sidebar } from '@/components/sidebar';
-import { InitialState } from '@/components/dashboard/InitialState';
-import { DashboardWithData } from '@/components/dashboard/DashboardWithData';
+import { useEffect, useState } from "react";
+import { useDashboardStore } from "@/stores/dashboard";
+import { Header } from "@/components/header";
+import { Sidebar } from "@/components/sidebar";
+import { InitialState } from "@/components/dashboard/InitialState";
+import { DashboardWithData } from "@/components/dashboard/DashboardWithData";
 
 export default function DashboardPage() {
   const { reset, customers, products, sales } = useDashboardStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-  const isDemo = sessionStorage.getItem('isDemo-data-dashboard');
-  if (isDemo) {
-    sessionStorage.removeItem('isDemo-data-dashboard');
-    localStorage.removeItem('dashboard-storage');
-    reset();
-  } else {
-    useDashboardStore.persist.rehydrate();
-  }
-}, [reset]);
+    const isDemo = sessionStorage.getItem("isDemo-data-dashboard");
+    if (isDemo) {
+      sessionStorage.removeItem("isDemo-data-dashboard");
+      localStorage.removeItem("dashboard-storage");
+      reset();
+    } else {
+      useDashboardStore.persist.rehydrate();
+    }
+  }, [reset]);
 
   const hasData = sales.length > 0;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <Header 
+      <Header
         hasData={hasData}
         onClearData={reset}
         sidebarOpen={sidebarOpen}
@@ -34,7 +34,7 @@ export default function DashboardPage() {
       />
 
       <div className="flex">
-        <Sidebar 
+        <Sidebar
           hasData={hasData}
           customers={customers}
           products={products}

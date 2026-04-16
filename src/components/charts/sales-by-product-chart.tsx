@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   BarChart,
@@ -8,15 +8,25 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useDashboardStore } from '@/stores/dashboard';
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDashboardStore } from "@/stores/dashboard";
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ value: number; name: string }>;
+  label?: string;
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg p-3 shadow-lg">
-        <p className="font-medium text-slate-900 dark:text-white mb-2">{label}</p>
+        <p className="font-medium text-slate-900 dark:text-white mb-2">
+          {label}
+        </p>
         <p className="text-sm text-slate-600 dark:text-slate-300">
           ${payload[0].value.toLocaleString()}
         </p>
@@ -38,18 +48,26 @@ export function SalesByProductChart() {
   }
 
   return (
-    <Card 
+    <Card
       className="bg-white dark:bg-black border-slate-200 dark:border-slate-800"
       data-testid="sales-by-product"
     >
       <CardHeader>
-        <CardTitle className="text-slate-900 dark:text-white">Sales by Product</CardTitle>
+        <CardTitle className="text-slate-900 dark:text-white">
+          Sales by Product
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={salesByProduct}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200 dark:stroke-slate-800" />
-            <XAxis dataKey="name" className="text-slate-600 dark:text-slate-400" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              className="stroke-slate-200 dark:stroke-slate-800"
+            />
+            <XAxis
+              dataKey="name"
+              className="text-slate-600 dark:text-slate-400"
+            />
             <YAxis className="text-slate-600 dark:text-slate-400" />
             <Tooltip content={<CustomTooltip />} />
             <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />

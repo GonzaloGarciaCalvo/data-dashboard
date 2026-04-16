@@ -30,7 +30,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-      <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function() {
             try {
               const stored = localStorage.getItem('dashboard-storage');
@@ -41,8 +43,10 @@ export default function RootLayout({
               }
             } catch (e) {}
           })();
-        `}} />
-    </head>
+        `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider>{children}</ThemeProvider>
       </body>

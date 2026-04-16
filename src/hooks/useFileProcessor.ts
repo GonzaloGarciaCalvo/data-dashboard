@@ -1,11 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useCallback } from 'react';
-import type { FileUpload } from '@/types';
-import { useDashboardStore } from '@/stores/dashboard';
-import { validateFileType, validateFileSize } from '@/lib/csv/parser';
-import { parseCustomers, parseProducts, parseTimes, parseSales } from '@/lib/csv/parser';
-import type { Customer, Product, Time, Sale } from '@/types';
+import { useState, useCallback } from "react";
+import type { FileUpload } from "@/types";
+import { useDashboardStore } from "@/stores/dashboard";
+import { validateFileType, validateFileSize } from "@/lib/csv/parser";
+import {
+  parseCustomers,
+  parseProducts,
+  parseTimes,
+  parseSales,
+} from "@/lib/csv/parser";
+import type { Customer, Product, Time, Sale } from "@/types";
 
 interface UseFileProcessorProps {
   files: FileUpload[];
@@ -16,57 +21,68 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
   // Hook for validation, parsing, store activation
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [parseErrors, setParseErrors] = useState<Array<{ file: File; errors: any[] }>>([]);
-  const [processedData, setProcessedData] = useState<Array<{ 
-    file: File; 
-    type: FileUpload['type']; 
-    data: unknown[] 
-  }>>([]);
+  const [parseErrors, setParseErrors] = useState<
+    Array<{ file: File; errors: any[] }>
+  >([]);
+  const [processedData, setProcessedData] = useState<
+    Array<{
+      file: File;
+      type: FileUpload["type"];
+      data: unknown[];
+    }>
+  >([]);
 
-  const { 
-    setCustomers, 
-    setProducts, 
-    setTimes, 
+  const {
+    setCustomers,
+    setProducts,
+    setTimes,
     setSales,
     setLoading: setStoreLoading,
     setError: setStoreError,
-    reset 
+    reset,
   } = useDashboardStore();
 
   const parseFile = useCallback(async (fileUpload: FileUpload) => {
     try {
-      if (!validateFileType(fileUpload.file, ['text/csv', 'application/vnd.ms-excel', 'text/plain'])) {
-        throw new Error('Invalid file type. Only CSV files are accepted.');
+      if (
+        !validateFileType(fileUpload.file, [
+          "text/csv",
+          "application/vnd.ms-excel",
+          "text/plain",
+        ])
+      ) {
+        throw new Error("Invalid file type. Only CSV files are accepted.");
       }
-      
-      if (!validateFileSize(fileUpload.file, 5)) { // 5MB max
+
+      if (!validateFileSize(fileUpload.file, 5)) {
+        // 5MB max
         throw new Error(`File exceeds maximum size of 5MB.`);
       }
 
       let result: { data: unknown[]; errors: any[] };
 
       switch (fileUpload.type) {
-        case 'customers':
+        case "customers":
           result = await parseCustomers(fileUpload.file);
           break;
-        case 'products':
+        case "products":
           result = await parseProducts(fileUpload.file);
           break;
-        case 'times':
+        case "times":
           result = await parseTimes(fileUpload.file);
           break;
-        case 'sales':
+        case "sales":
           result = await parseSales(fileUpload.file);
           break;
         default:
           throw new Error(`Unknown file type: ${fileUpload.type}`);
       }
 
-      return { 
-        file: fileUpload.file, 
-        type: fileUpload.type, 
-        data: result.data, 
-        errors: result.errors 
+      return {
+        file: fileUpload.file,
+        type: fileUpload.type,
+        data: result.data,
+        errors: result.errors,
       };
     } catch (err) {
       throw err;
@@ -81,13 +97,15 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
 
     try {
       const results = await Promise.all(files.map(parseFile));
-      
-      const filesWithErrors = results.filter(r => r.errors.length > 0);
+
+      const filesWithErrors = results.filter((r) => r.errors.length > 0);
       if (filesWithErrors.length > 0) {
-        setParseErrors(filesWithErrors.map(r => ({ 
-          file: r.file, 
-          errors: r.errors 
-        })));
+        setParseErrors(
+          filesWithErrors.map((r) => ({
+            file: r.file,
+            errors: r.errors,
+          })),
+        );
         setProcessedData(results); // Keep all results (including successful ones) for potential continuation
         return;
       }
@@ -109,14 +127,24 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
         }
       });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error processing files';
+      const errorMessage =
+        err instanceof Error ? err.message : "Error processing files";
       setError(errorMessage);
       setStoreError(errorMessage);
     } finally {
       setIsLoading(false);
       setStoreLoading(false);
     }
-  }, [files, parseFile, setCustomers, setProducts, setTimes, setSales, setStoreLoading, setStoreError]);
+  }, [
+    files,
+    parseFile,
+    setCustomers,
+    setProducts,
+    setTimes,
+    setSales,
+    setStoreLoading,
+    setStoreError,
+  ]);
 
   const clearParseErrors = useCallback(() => {
     setParseErrors([]);
@@ -142,7 +170,14 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
       }
     });
     clearParseErrors();
-  }, [processedData, setCustomers, setProducts, setTimes, setSales, clearParseErrors]);
+  }, [
+    processedData,
+    setCustomers,
+    setProducts,
+    setTimes,
+    setSales,
+    clearParseErrors,
+  ]);
 
   const resetAll = useCallback(() => {
     setFiles([]);
@@ -157,6 +192,6 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
     resetAll,
     parseErrors,
     clearParseErrors,
-    continueProcessing
+    continueProcessing,
   };
 }

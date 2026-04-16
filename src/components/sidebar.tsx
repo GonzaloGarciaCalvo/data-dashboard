@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { BarChart3, Upload, Settings, Moon, Sun } from 'lucide-react';
-import Link from 'next/link';
-import { useDashboardStore } from '@/stores/dashboard';
-import { AsideButton } from './ui/aside-buton';
+import { BarChart3, Upload, Settings, Moon, Sun } from "lucide-react";
+import Link from "next/link";
+import { useDashboardStore } from "@/stores/dashboard";
+import { AsideButton } from "./ui/aside-buton";
 
 interface SidebarProps {
   hasData: boolean;
@@ -14,19 +14,26 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onClose }: SidebarProps) {
+export function Sidebar({
+  hasData,
+  customers,
+  products,
+  sales,
+  sidebarOpen,
+  onClose,
+}: SidebarProps) {
   const { theme, setTheme } = useDashboardStore();
 
   return (
     <>
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <button 
+        <button
           type="button"
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={onClose}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               onClose();
             }
@@ -35,34 +42,30 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
       )}
 
       {/* Sidebar */}
-      <aside className={`
+      <aside
+        className={`
         fixed md:static inset-y-0 left-0 z-50
         w-64 bg-white dark:bg-slate-800 
         border-r border-slate-200 dark:border-slate-700 
         min-h-screen p-4
         transform transition-transform duration-200
         md:transform-none
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+      `}
+      >
         <nav className="space-y-2">
-          <AsideButton
-            onClick={onClose}
-          >
+          <AsideButton onClick={onClose}>
             <BarChart3 className="h-5 w-5" />
             Dashboard
           </AsideButton>
           <Link href="/">
-            <AsideButton
-              onClick={onClose}
-            >
+            <AsideButton onClick={onClose}>
               <Upload className="h-5 w-5" />
               Load Data
             </AsideButton>
           </Link>
           <Link href="/demo">
-            <AsideButton
-              onClick={onClose}
-            >
+            <AsideButton onClick={onClose}>
               <Upload className="h-5 w-5" />
               Demo with mocked data
             </AsideButton>
@@ -76,29 +79,47 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
             Settings
           </button> */}
           <AsideButton
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+            {theme === "dark" ? "Light Mode" : "Dark Mode"}
           </AsideButton>
         </nav>
-        
+
         {/* Stats in sidebar */}
         {hasData && (
           <div className="mt-8 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-100 mb-3">Loaded Data</h3>
+            <h3 className="text-sm font-medium text-slate-600 dark:text-slate-100 mb-3">
+              Loaded Data
+            </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-100">Customers:</span>
-                <span className="font-medium text-slate-700 dark:text-slate-50">{customers.length}</span>
+                <span className="text-slate-500 dark:text-slate-100">
+                  Customers:
+                </span>
+                <span className="font-medium text-slate-700 dark:text-slate-50">
+                  {customers.length}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-100">Products:</span>
-                <span className="font-medium text-slate-700 dark:text-slate-50">{products.length}</span>
+                <span className="text-slate-500 dark:text-slate-100">
+                  Products:
+                </span>
+                <span className="font-medium text-slate-700 dark:text-slate-50">
+                  {products.length}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500 dark:text-slate-100">Records:</span>
-                <span className="font-medium text-slate-700 dark:text-slate-50">{sales.length}</span>
+                <span className="text-slate-500 dark:text-slate-100">
+                  Records:
+                </span>
+                <span className="font-medium text-slate-700 dark:text-slate-50">
+                  {sales.length}
+                </span>
               </div>
             </div>
           </div>
