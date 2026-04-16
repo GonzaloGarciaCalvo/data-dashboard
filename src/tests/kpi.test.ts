@@ -305,7 +305,7 @@ describe("KPI Calculator", () => {
 
   it("should calculate average sale correctly", () => {
     const kpis = calculateKPIs(mockSales, mockTimes);
-    const avgSale = kpis.find((k) => k.name === "Average Sale");
+    const avgSale = kpis.find((k) => k.name === "Average Amount");
     expect(avgSale?.value).toBeCloseTo(1167.86, 2);
   });
 
@@ -313,12 +313,6 @@ describe("KPI Calculator", () => {
     const kpis = calculateKPIs(mockSales, mockTimes);
     const monthlyVariation = kpis.find((k) => k.name === "Monthly Variation");
     expect(monthlyVariation?.value).toBeCloseTo(1.478, 2);
-  });
-
-  it("should calculate average sale correctly", () => {
-    const kpis = calculateKPIs(mockSales, mockTimes);
-    const avgSale = kpis.find((k) => k.name === "Average Sale");
-    expect(avgSale?.value).toBeCloseTo(1167.857, 2);
   });
 
   it("should return empty array when sales is empty", () => {
