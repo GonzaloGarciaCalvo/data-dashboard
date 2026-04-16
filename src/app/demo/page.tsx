@@ -12,16 +12,17 @@ export default function DemoPage() {
   const { setCustomers, setProducts, setSales, setTimes, reset } = useDashboardStore();
 
   useEffect(() => {
-    // Reset store to clear any existing data
-    //reset();
-    
-    // Set mock data in order that minimizes unnecessary recalculations
-    // Setting times doesn't trigger calculateAll, so we do it first
+    sessionStorage.setItem('isDemo-data-dashboard', 'true')
+    reset();
     setTimes(mockedTimes);
     setCustomers(mockedCustomers);
     setProducts(mockedProducts);
     setSales(mockedSales);
-    return () => reset();
+    return () => {
+      sessionStorage.removeItem('isDemo-data-dashboard');
+      reset();
+      localStorage.removeItem('dashboard-storage');
+    }
   }, [setCustomers, setProducts, setSales, setTimes, reset]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);

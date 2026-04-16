@@ -55,20 +55,22 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
             <BarChart3 className="h-5 w-5" />
             Dashboard
           </button>
-          <button 
-            type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
-            onClick={onClose}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClose();
-              }
-            }}
-          >
-            <Upload className="h-5 w-5" />
-            Load Data
-          </button>
+          <Link href="/">
+            <button 
+              type="button"
+              className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
+            /*   onClick={onClose}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onClose();
+                }
+              }} */
+            >
+              <Upload className="h-5 w-5" />
+              Load Data
+            </button>
+          </Link>
           <Link href="/demo">
             <button 
               type="button"

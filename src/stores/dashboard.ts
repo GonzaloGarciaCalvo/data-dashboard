@@ -58,21 +58,17 @@ export const useDashboardStore = create<DashboardState>()(
 	persist(
 		(set, get) => ({
 			...initialState,
-
 			setCustomers: (customers) => {
 				set({ customers });
 				get().calculateAll();
 			},
-
 			setProducts: (products) => {
 				set({ products });
 				get().calculateAll();
 			},
-
 			setTimes: (times) => {
 				set({ times });
 			},
-
 			setSales: (sales) => {
 				try {
 					set({ sales });
@@ -82,22 +78,18 @@ export const useDashboardStore = create<DashboardState>()(
 					throw error;
 				}
 			},
-
 			setPeriod: (period: PeriodOption) => {
 				set({ period });
 				get().calculateAll();
 			},
-
 			setManualMonths: (manualMonths: number) => {
 				set({ manualMonths });
 				get().calculateAll();
 			},
-
 			setChartGrouping: (chartGrouping) => {
 				set({ chartGrouping });
 				get().calculateAll();
 			},
-
 			calculateAll: () => {
 				const {
 					customers,
@@ -111,10 +103,8 @@ export const useDashboardStore = create<DashboardState>()(
 
 				// Filter sales based on period (handle empty sales array)
 				const filteredSales = filterSalesByPeriod(sales, period, manualMonths);
-
 				// Calculate KPIs (now passing both sales and times)
 				const kpis = calculateKPIs(filteredSales, times);
-
 				// Calculate chart data with grouping
 				const salesByDate = getSalesByDateChartData(
 					filteredSales,
@@ -136,17 +126,16 @@ export const useDashboardStore = create<DashboardState>()(
 					salesByProduct,
 				});
 			},
-
 			reset: () => {
+				console.log("[DashboardStore] Resetting store to initial state");
 				set(initialState);
 			},
-
 			setLoading: (isLoading) => set({ isLoading }),
-
 			setError: (error) => set({ error }),
 		}),
 		{
 			name: "dashboard-storage",
+			skipHydration: true,
 			partialize: (state) => ({
 				customers: state.customers,
 				products: state.products,

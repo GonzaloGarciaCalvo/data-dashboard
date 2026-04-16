@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboardStore } from '@/stores/dashboard';
 import { Header } from '@/components/header';
 import { Sidebar } from '@/components/sidebar';
@@ -10,6 +10,17 @@ import { DashboardWithData } from '@/components/dashboard/DashboardWithData';
 export default function DashboardPage() {
   const { reset, customers, products, sales } = useDashboardStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+  const isDemo = sessionStorage.getItem('isDemo-data-dashboard');
+  if (isDemo) {
+    sessionStorage.removeItem('isDemo-data-dashboard');
+    localStorage.removeItem('dashboard-storage');
+    reset();
+  } else {
+    useDashboardStore.persist.rehydrate();
+  }
+}, [reset]);
 
   const hasData = sales.length > 0;
 

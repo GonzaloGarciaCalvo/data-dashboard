@@ -30,6 +30,14 @@ function formatNumber(value: number): string {
   return new Intl.NumberFormat('en-US').format(value);
 }
 
+// Format a number with exactly 2 decimal places and thousands separators
+function formatNumberWithDecimals(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
 // ==================== KPI Calculation ====================
 
 export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
@@ -105,9 +113,8 @@ export function calculateKPIs(sales: Sale[], times: Time[]): CalculatedKPI[] {
     {
       name: 'Std Deviation',
       value: stdDeviation,
-      formattedValue: formatCurrency(stdDeviation),
-      type: 'currency',
-      variation: stdDeviation // opcional: para mostrar variación en tooltip o gráfico
+      formattedValue: formatNumberWithDecimals(stdDeviation),
+      type: 'number',
     },
   ];
 }
@@ -143,15 +150,15 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
   if (validSales.length === 0) {
     return null;
   }
-
+  
   // Get current year and month to identify the current month
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
-
+  
   // Create a map of month->year to total sales, excluding current month
   const salesByMonth = new Map<string, number>();
-    
+   
   validSales.forEach(sale => {
     // Parse date manually from YYYY-MM-DD format to avoid timezone issues
     const [yearStr, monthStr] = sale.date.split('-');
@@ -167,7 +174,7 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
     const current = salesByMonth.get(monthYearKey) || 0;
     salesByMonth.set(monthYearKey, current + sale.sales);
   });
-
+  
   // Convert to array and sort by year/month descending (most recent first)
   const sortedMonths = Array.from(salesByMonth.entries())
     .map(([monthYear, salesAmount]) => ({
@@ -175,12 +182,12 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
       sales: Number(salesAmount)
     }))
     .sort((a, b) => b.monthYear.localeCompare(a.monthYear));
-
+  
   // Need at least 2 completed months to calculate variation
   if (sortedMonths.length < 2) {
     return null;
   }
-
+  
   // Get the last 2 completed months (most recent and previous)
   const [mostRecent, previous] = sortedMonths.slice(0, 2);
   
