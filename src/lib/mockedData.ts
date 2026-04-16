@@ -1,0 +1,331 @@
+export const mockedCustomers = [
+  {
+    customerId: 'C001',
+    name: 'Juan Pérez',
+    region: 'Norte',
+    segment: 'Empresarial'
+  },
+  {
+    customerId: 'C002',
+    name: 'María Gómez',
+    region: 'Sur',
+    segment: 'Particular'
+  },
+  {
+    customerId: 'C003',
+    name: 'Carlos López',
+    region: 'Este',
+    segment: 'Gobierno'
+  },
+  {
+    customerId: 'C004',
+    name: 'Ana Martínez',
+    region: 'Oeste',
+    segment: 'Empresarial'
+  },
+  {
+    customerId: 'C005',
+    name: 'Luis Rodríguez',
+    region: 'Norte',
+    segment: 'Particular'
+  }
+];
+
+export const mockedProducts = [
+  {
+    productId: 'P001',
+    name: 'Laptop Dell XPS',
+    category: 'Computación',
+    brand: 'Dell'
+  },
+  {
+    productId: 'P002',
+    name: 'iPhone 13',
+    category: 'Móviles',
+    brand: 'Apple'
+  },
+  {
+    productId: 'P003',
+    name: 'Samsung Smart TV',
+    category: 'Electrodomésticos',
+    brand: 'Samsung'
+  },
+  {
+    productId: 'P004',
+    name: 'Impresora HP LaserJet',
+    category: 'Oficina',
+    brand: 'HP'
+  },
+  {
+    productId: 'P005',
+    name: 'Auriculares Sony',
+    category: 'Audio',
+    brand: 'Sony'
+  }
+];
+
+export const mockedTimes = [
+  {
+    timeId: 'T001',
+    date: '2023-01-15',
+    month: 'Enero',
+    quarter: 'Q1',
+    year: '2023'
+  },
+  {
+    timeId: 'T002',
+    date: '2023-02-20',
+    month: 'Febrero',
+    quarter: 'Q1',
+    year: '2023'
+  },
+  {
+    timeId: 'T003',
+    date: '2023-03-10',
+    month: 'Marzo',
+    quarter: 'Q1',
+    year: '2023'
+  },
+  {
+    timeId: 'T004',
+    date: '2023-04-05',
+    month: 'Abril',
+    quarter: 'Q2',
+    year: '2023'
+  },
+  {
+    timeId: 'T005',
+    date: '2023-05-12',
+    month: 'Mayo',
+    quarter: 'Q2',
+    year: '2023'
+  },
+  {
+    timeId: 'T006',
+    date: '2023-06-30',
+    month: 'Junio',
+    quarter: 'Q2',
+    year: '2023'
+  },
+  {
+    timeId: 'T007',
+    date: '2025-01-10',
+    month: 'Enero',
+    quarter: 'Q1',
+    year: '2025'
+  },
+  {
+    timeId: 'T008',
+    date: '2025-02-15',
+    month: 'Febrero',
+    quarter: 'Q1',
+    year: '2025'
+  },
+  {
+    timeId: 'T009',
+    date: '2025-03-22',
+    month: 'Marzo',
+    quarter: 'Q1',
+    year: '2025'
+  },
+  {
+    timeId: 'T010',
+    date: '2025-04-18',
+    month: 'Abril',
+    quarter: 'Q2',
+    year: '2025'
+  },
+  {
+    timeId: 'T011',
+    date: '2025-05-25',
+    month: 'Mayo',
+    quarter: 'Q2',
+    year: '2025'
+  },
+  {
+    timeId: 'T012',
+    date: '2025-06-30',
+    month: 'Junio',
+    quarter: 'Q2',
+    year: '2025'
+  },
+  {
+    timeId: 'T013',
+    date: '2026-01-12',
+    month: 'Enero',
+    quarter: 'Q1',
+    year: '2026'
+  },
+  {
+    timeId: 'T014',
+    date: '2026-02-14',
+    month: 'Febrero',
+    quarter: 'Q1',
+    year: '2026'
+  },
+  {
+    timeId: 'T015',
+    date: '2026-03-20',
+    month: 'Marzo',
+    quarter: 'Q1',
+    year: '2026'
+  }
+];
+
+export const mockedSales = [
+  // 2023 Sales Data (original)
+  {
+    date: '2023-01-15',
+    customerId: 'C001',
+    productId: 'P001',
+    sales: 1500,
+    costs: 1200,
+    units: 2
+  },
+  {
+    date: '2023-01-16',
+    customerId: 'C002',
+    productId: 'P002',
+    sales: 800,
+    costs: 600,
+    units: 1
+  },
+  {
+    date: '2023-01-17',
+    customerId: 'C003',
+    productId: 'P003',
+    sales: 2000,
+    costs: 1500,
+    units: 1
+  },
+  {
+    date: '2023-02-01',
+    customerId: 'C001',
+    productId: 'P004',
+    sales: 300,
+    costs: 200,
+    units: 3
+  },
+  {
+    date: '2023-02-10',
+    customerId: 'C004',
+    productId: 'P005',
+    sales: 150,
+    costs: 100,
+    units: 2
+  },
+  {
+    date: '2023-03-05',
+    customerId: 'C005',
+    productId: 'P001',
+    sales: 1800,
+    costs: 1400,
+    units: 2
+  },
+  {
+    date: '2023-03-20',
+    customerId: 'C002',
+    productId: 'P003',
+    sales: 2200,
+    costs: 1600,
+    units: 1
+  },
+  {
+    date: '2023-04-01',
+    customerId: 'C003',
+    productId: 'P001',
+    sales: 1600,
+    costs: 1300,
+    units: 2
+  },
+  {
+    date: '2023-04-15',
+    customerId: 'C001',
+    productId: 'P002',
+    sales: 900,
+    costs: 650,
+    units: 1
+  },
+  {
+    date: '2023-05-01',
+    customerId: 'C004',
+    productId: 'P004',
+    sales: 350,
+    costs: 220,
+    units: 4
+  },
+  // 2025 Sales Data
+  {
+    date: '2025-01-10',
+    customerId: 'C002',
+    productId: 'P001',
+    sales: 2200,
+    costs: 1700,
+    units: 2
+  },
+  {
+    date: '2025-02-15',
+    customerId: 'C003',
+    productId: 'P004',
+    sales: 450,
+    costs: 300,
+    units: 5
+  },
+  {
+    date: '2025-03-22',
+    customerId: 'C001',
+    productId: 'P003',
+    sales: 2500,
+    costs: 1900,
+    units: 1
+  },
+  {
+    date: '2025-04-18',
+    customerId: 'C005',
+    productId: 'P002',
+    sales: 1100,
+    costs: 800,
+    units: 1
+  },
+  {
+    date: '2025-05-25',
+    customerId: 'C004',
+    productId: 'P001',
+    sales: 1900,
+    costs: 1500,
+    units: 2
+  },
+  {
+    date: '2025-06-30',
+    customerId: 'C002',
+    productId: 'P005',
+    sales: 200,
+    costs: 120,
+    units: 4
+  },
+  // 2026 Sales Data
+  {
+    date: '2026-01-12',
+    customerId: 'C003',
+    productId: 'P001',
+    sales: 2300,
+    costs: 1800,
+    units: 2
+  },
+  {
+    date: '2026-02-14',
+    customerId: 'C001',
+    productId: 'P004',
+    sales: 400,
+    costs: 250,
+    units: 3
+  },
+  {
+    date: '2026-03-20',
+    customerId: 'C005',
+    productId: 'P002',
+    sales: 1200,
+    costs: 850,
+    units: 1
+  }
+];

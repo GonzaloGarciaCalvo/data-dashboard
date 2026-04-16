@@ -64,7 +64,7 @@ export function CSVUploader() {
               accept=".csv,text/csv"
               multiple
               onChange={handleFileSelect}
-              className="hidden flex flex-col"
+              className="hidden"
               id="csv-upload"
             />
             <Upload className="mx-auto h-12 w-12 text-slate-400" />

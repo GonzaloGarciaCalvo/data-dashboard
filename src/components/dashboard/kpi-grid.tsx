@@ -27,10 +27,6 @@ const colorMap: Record<string, string> = {
 export function KPIGrid() {
   const { kpis, sales, period, manualMonths } = useDashboardStore();
 
-  //console.log("[KPIGrid] sales[0]: ", sales[0]);
-  console.log("[KPIGrid] sales[5742]: ", sales[5742]);
-  console.log("[KPIGrid] sales[5741]: ", sales[5741]);
-
 
   if (sales.length === 0) {
     return (

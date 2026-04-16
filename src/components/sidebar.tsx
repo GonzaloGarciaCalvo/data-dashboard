@@ -1,6 +1,7 @@
 'use client';
 
 import { BarChart3, Upload, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 interface SidebarProps {
   hasData: boolean;
@@ -16,9 +17,16 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
     <>
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div 
+        <button 
+          type="button"
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
           onClick={onClose}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onClose();
+            }
+          }}
         />
       )}
 
@@ -35,22 +43,58 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
         <nav className="space-y-2">
           <button 
             type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-700 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors bg-slate-100 dark:bg-slate-700 "
+            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-700 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors bg-slate-100 dark:bg-slate-700 "
+            onClick={onClose}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClose();
+              }
+            }}
           >
             <BarChart3 className="h-5 w-5" />
             Dashboard
           </button>
           <button 
             type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
             onClick={onClose}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClose();
+              }
+            }}
           >
             <Upload className="h-5 w-5" />
             Load Data
           </button>
+          <Link href="/demo">
+            <button 
+              type="button"
+              className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
+              onClick={onClose}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onClose();
+                }
+              }}
+            >
+              <Upload className="h-5 w-5" />
+              Demo with mocked data
+            </button>
+          </Link>
           <button 
             type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
+            onClick={onClose}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClose();
+              }
+            }}
           >
             <Settings className="h-5 w-5" />
             Settings
