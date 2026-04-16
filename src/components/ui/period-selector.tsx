@@ -1,15 +1,7 @@
 "use client";
 
-import { useDashboardStore, type PeriodOption } from "@/stores/dashboard";
-
-interface PeriodSelectorProps {
-  onChange?: (period: PeriodOption) => void;
-}
-
-type GroupedOption = {
-  label: string;
-  value: PeriodOption;
-};
+import { useDashboardStore} from "@/stores/dashboard";
+import { GroupedOption, PeriodOption, PeriodSelectorProps } from "@/types";
 
 const periodOptions: GroupedOption[] = [
   { label: "All Data", value: "all" },

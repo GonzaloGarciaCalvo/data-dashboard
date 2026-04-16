@@ -146,3 +146,12 @@ export interface ParseResult<T> {
   data: T[];
   errors: unknown[];
 }
+
+export interface PeriodSelectorProps {
+  onChange?: (period: PeriodOption) => void;
+}
+
+export type GroupedOption = {
+  label: string;
+  value: PeriodOption;
+}; 
