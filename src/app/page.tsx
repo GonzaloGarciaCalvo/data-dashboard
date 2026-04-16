@@ -43,7 +43,6 @@ export default function DashboardPage() {
           onClose={() => setSidebarOpen(false)}
         />
 
-        {/* Main Content */}
         <main className="flex-1 p-4 md:p-6">
           {hasData ? <DashboardWithData /> : <InitialState />}
         </main>

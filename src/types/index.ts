@@ -96,3 +96,47 @@ export interface FileListProps {
   files: FileUpload[];
   removeFile: (file: File) => void;
 }
+
+export type PeriodOption = 'annual' | 'quarterly' | 'monthly' | 'current' | 'manual' | 'all';
+export type ChartGrouping = 'day' | 'week' | 'month' | 'quarter';
+
+export type Theme = 'light' | 'dark' | 'system';
+
+export interface DashboardData {
+  customers: Customer[];
+  products: Product[];
+  times: Time[];
+  sales: Sale[];
+  period: PeriodOption;
+  manualMonths: number;
+  chartGrouping: ChartGrouping;
+  kpis: CalculatedKPI[];
+  salesByDate: { date: string; sales: number; costs: number; margin: number }[];
+  salesByCustomer: { name: string; value: number }[];
+  salesByProduct: { name: string; value: number }[];
+  isLoading: boolean;
+  error: string | null;
+  theme: Theme;
+}
+
+interface DashboardActions {
+  setCustomers: (customers: Customer[]) => void;
+  setProducts: (products: Product[]) => void;
+  setTimes: (times: Time[]) => void;
+  setSales: (sales: Sale[]) => void;
+  setPeriod: (period: PeriodOption) => void;
+  setManualMonths: (manualMonths: number) => void;
+  setChartGrouping: (chartGrouping: ChartGrouping) => void;
+  calculateAll: () => void;
+  reset: () => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
+  setTheme: (theme: Theme) => void;
+}
+
+export type DashboardState = DashboardData & DashboardActions;
+
+export interface ParseResult<T> {
+  data: T[];
+  errors: any[];
+}

@@ -1,7 +1,9 @@
 'use client';
 
-import { BarChart3, Upload, Settings } from 'lucide-react';
+import { BarChart3, Upload, Settings, Moon, Sun } from 'lucide-react';
 import Link from 'next/link';
+import { useDashboardStore } from '@/stores/dashboard';
+import { AsideButton } from './ui/aside-buton';
 
 interface SidebarProps {
   hasData: boolean;
@@ -13,6 +15,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onClose }: SidebarProps) {
+  const { theme, setTheme } = useDashboardStore();
+
   return (
     <>
       {/* Mobile overlay */}
@@ -41,66 +45,42 @@ export function Sidebar({ hasData, customers, products, sales, sidebarOpen, onCl
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <nav className="space-y-2">
-          <button 
-            type="button"
-            className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-700 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors bg-slate-100 dark:bg-slate-700 "
+          <AsideButton
             onClick={onClose}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClose();
-              }
-            }}
           >
             <BarChart3 className="h-5 w-5" />
             Dashboard
-          </button>
+          </AsideButton>
           <Link href="/">
-            <button 
-              type="button"
-              className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
-            /*   onClick={onClose}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onClose();
-                }
-              }} */
+            <AsideButton
+              onClick={onClose}
             >
               <Upload className="h-5 w-5" />
               Load Data
-            </button>
+            </AsideButton>
           </Link>
           <Link href="/demo">
-            <button 
-              type="button"
-              className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
+            <AsideButton
               onClick={onClose}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onClose();
-                }
-              }}
             >
               <Upload className="h-5 w-5" />
               Demo with mocked data
-            </button>
+            </AsideButton>
           </Link>
-          <button 
+          {/* <button 
             type="button"
             className="flex items-center gap-3 w-full px-4 py-3 text-left text-slate-600 dark:text-slate-50 rounded-lg hover:bg-slate-100 dark:bg-slate-700 transition-colors"
             onClick={onClose}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onClose();
-              }
-            }}
           >
             <Settings className="h-5 w-5" />
             Settings
-          </button>
+          </button> */}
+          <AsideButton
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </AsideButton>
         </nav>
         
         {/* Stats in sidebar */}

@@ -1,12 +1,10 @@
-import type { Sale, CalculatedKPI, Customer, Product, Time } from '@/types';
-import type { ChartGrouping } from '@/stores/dashboard';
+import type { Sale, CalculatedKPI, Customer, Product, Time, ChartGrouping } from '@/types';
 
 // ==================== Helper Functions for Consistent English Formatting ====================
 // Since the app is in English, we enforce US number formatting:
 // - Thousands separator: comma (,)
 // - Decimal separator: period (.)
 
-// Format a number as currency (USD) with no decimal places
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -16,7 +14,6 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-// Format a number as percentage with 1 decimal place
 function formatPercentage(value: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'percent',
@@ -158,7 +155,7 @@ function calculateMonthlyVariation(sales: Sale[], times: Time[]): number | null 
   
   // Create a map of month->year to total sales, excluding current month
   const salesByMonth = new Map<string, number>();
-   
+
   validSales.forEach(sale => {
     // Parse date manually from YYYY-MM-DD format to avoid timezone issues
     const [yearStr, monthStr] = sale.date.split('-');

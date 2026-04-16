@@ -1,42 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Customer, Product, Time, Sale, CalculatedKPI } from '@/types';
+import type { Customer, Product, Time, Sale, CalculatedKPI, DashboardData, DashboardState, Theme, PeriodOption, ChartGrouping } from '@/types';
 import { calculateKPIs, getSalesByDateChartData, getSalesByCustomerChartData, getSalesByProductChartData } from '@/lib/kpis/calculator';
 
-export type PeriodOption = 'annual' | 'quarterly' | 'monthly' | 'current' | 'manual' | 'all';
-export type ChartGrouping = 'day' | 'week' | 'month' | 'quarter';
-
-interface DashboardData {
-  customers: Customer[];
-  products: Product[];
-  times: Time[];
-  sales: Sale[];
-  period: PeriodOption;
-  manualMonths: number;
-  chartGrouping: ChartGrouping;
-  kpis: CalculatedKPI[];
-  salesByDate: { date: string; sales: number; costs: number; margin: number }[];
-  salesByCustomer: { name: string; value: number }[];
-  salesByProduct: { name: string; value: number }[];
-  isLoading: boolean;
-  error: string | null;
-}
-
-interface DashboardActions {
-  setCustomers: (customers: Customer[]) => void;
-  setProducts: (products: Product[]) => void;
-  setTimes: (times: Time[]) => void;
-  setSales: (sales: Sale[]) => void;
-  setPeriod: (period: PeriodOption) => void;
-  setManualMonths: (manualMonths: number) => void;
-  setChartGrouping: (chartGrouping: ChartGrouping) => void;
-  calculateAll: () => void;
-  reset: () => void;
-  setLoading: (isLoading: boolean) => void;
-  setError: (error: string | null) => void;
-}
-
-type DashboardState = DashboardData & DashboardActions;
 
 const initialState: DashboardData = {
   customers: [],
@@ -52,102 +18,118 @@ const initialState: DashboardData = {
   salesByProduct: [],
   isLoading: false,
   error: null,
+  theme: 'system' as Theme,
 };
 
 export const useDashboardStore = create<DashboardState>()(
-	persist(
-		(set, get) => ({
-			...initialState,
-			setCustomers: (customers) => {
-				set({ customers });
-				get().calculateAll();
-			},
-			setProducts: (products) => {
-				set({ products });
-				get().calculateAll();
-			},
-			setTimes: (times) => {
-				set({ times });
-			},
-			setSales: (sales) => {
-				try {
-					set({ sales });
-					get().calculateAll();
-				} catch (error) {
-					console.error("[setSales] ERROR:", error);
-					throw error;
+  persist(
+    (set, get) => ({
+      ...initialState,
+
+      setCustomers: (customers) => {
+        set({ customers });
+        get().calculateAll();
+      },
+      setProducts: (products) => {
+        set({ products });
+        get().calculateAll();
+      },
+      setTimes: (times) => {
+        set({ times });
+      },
+      setSales: (sales) => {
+        try {
+          set({ sales });
+          get().calculateAll();
+        } catch (error) {
+          console.error("[setSales] ERROR:", error);
+          throw error;
+        }
+      },
+      setPeriod: (period: PeriodOption) => {
+        set({ period });
+        get().calculateAll();
+      },
+      setManualMonths: (manualMonths: number) => {
+        set({ manualMonths });
+        get().calculateAll();
+      },
+      setChartGrouping: (chartGrouping: ChartGrouping) => {
+        set({ chartGrouping });
+        get().calculateAll();
+      },
+      calculateAll: () => {
+        const {
+          customers,
+          products,
+          sales,
+          times,
+          period,
+          manualMonths,
+          chartGrouping,
+        } = get();
+
+        // Filter sales based on period (handle empty sales array)
+        const filteredSales = filterSalesByPeriod(sales, period, manualMonths);
+        // Calculate KPIs (now passing both sales and times)
+        const kpis = calculateKPIs(filteredSales, times);
+        // Calculate chart data with grouping
+        const salesByDate = getSalesByDateChartData(
+          filteredSales,
+          chartGrouping
+        );
+        const salesByCustomer = getSalesByCustomerChartData(
+          filteredSales,
+          customers
+        );
+        const salesByProduct = getSalesByProductChartData(
+          filteredSales,
+          products
+        );
+        set({
+          kpis,
+          salesByDate,
+          salesByCustomer,
+          salesByProduct,
+        });
+      },
+      reset: () => {
+        set(initialState);
+      },
+      setLoading: (isLoading) => set({ isLoading }),
+      setError: (error) => set({ error }),
+
+      setTheme: (theme: Theme) => {
+				set({ theme });
+				console.log("[setTheme] New theme:", theme);
+				// Aplicar clase directamente al DOM
+				const root = document.documentElement;
+				if (theme === 'system') {
+					const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+					root.classList.toggle('dark', prefersDark);
+					console.log("[setTheme] System theme detected, prefersDark:", prefersDark);
+				} else {
+					root.classList.toggle('dark', theme === 'dark');
+					console.log("[setTheme] Theme set to:", theme);
+					console.log("[setTheme] Current classList:", root.classList);
 				}
 			},
-			setPeriod: (period: PeriodOption) => {
-				set({ period });
-				get().calculateAll();
-			},
-			setManualMonths: (manualMonths: number) => {
-				set({ manualMonths });
-				get().calculateAll();
-			},
-			setChartGrouping: (chartGrouping) => {
-				set({ chartGrouping });
-				get().calculateAll();
-			},
-			calculateAll: () => {
-				const {
-					customers,
-					products,
-					sales,
-					times,
-					period,
-					manualMonths,
-					chartGrouping,
-				} = get();
-
-				// Filter sales based on period (handle empty sales array)
-				const filteredSales = filterSalesByPeriod(sales, period, manualMonths);
-				// Calculate KPIs (now passing both sales and times)
-				const kpis = calculateKPIs(filteredSales, times);
-				// Calculate chart data with grouping
-				const salesByDate = getSalesByDateChartData(
-					filteredSales,
-					chartGrouping
-				);
-				const salesByCustomer = getSalesByCustomerChartData(
-					filteredSales,
-					customers
-				);
-				const salesByProduct = getSalesByProductChartData(
-					filteredSales,
-					products
-				);
-
-				set({
-					kpis,
-					salesByDate,
-					salesByCustomer,
-					salesByProduct,
-				});
-			},
-			reset: () => {
-				console.log("[DashboardStore] Resetting store to initial state");
-				set(initialState);
-			},
-			setLoading: (isLoading) => set({ isLoading }),
-			setError: (error) => set({ error }),
-		}),
-		{
-			name: "dashboard-storage",
-			skipHydration: true,
-			partialize: (state) => ({
-				customers: state.customers,
-				products: state.products,
-				times: state.times,
-				sales: state.sales,
-				kpis: state.kpis,
-				salesByDate: state.salesByDate,
-				salesByCustomer: state.salesByCustomer,
-				salesByProduct: state.salesByProduct,
-			}),
-		}
-	)
+    }),
+    {
+      name: "dashboard-storage",
+      partialize: (state) => ({
+        customers: state.customers,
+        products: state.products,
+        times: state.times,
+        sales: state.sales,
+        kpis: state.kpis,
+        salesByDate: state.salesByDate,
+        salesByCustomer: state.salesByCustomer,
+        salesByProduct: state.salesByProduct,
+        theme: state.theme,
+      }),
+    }
+  )
 );
 
 // Filter sales based on selected period

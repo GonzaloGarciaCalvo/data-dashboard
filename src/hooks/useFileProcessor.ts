@@ -35,7 +35,6 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
 
   const parseFile = useCallback(async (fileUpload: FileUpload) => {
     try {
-      // Validaciones
       if (!validateFileType(fileUpload.file, ['text/csv', 'application/vnd.ms-excel', 'text/plain'])) {
         throw new Error('Invalid file type. Only CSV files are accepted.');
       }
@@ -81,15 +80,10 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
     setProcessedData([]);
 
     try {
-      // Process all files in parallel
       const results = await Promise.all(files.map(parseFile));
       
-      // Check for any parse errors
       const filesWithErrors = results.filter(r => r.errors.length > 0);
-      console.log('[useFileProcessor] results: ', results);
       if (filesWithErrors.length > 0) {
-        //console.error('[useFileProcessor] errors found: ', filesWithErrors);
-        // Store the errors and the processed data (so we can use if user chooses to continue)
         setParseErrors(filesWithErrors.map(r => ({ 
           file: r.file, 
           errors: r.errors 
@@ -97,7 +91,6 @@ export function useFileProcessor({ files, setFiles }: UseFileProcessorProps) {
         setProcessedData(results); // Keep all results (including successful ones) for potential continuation
         return;
       }
-
       // No parse errors - update store with all data
       results.forEach(({ type, data }) => {
         switch (type) {

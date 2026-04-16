@@ -1,11 +1,9 @@
 import Papa from 'papaparse';
-import type { Customer, Product, Time, Sale } from '@/types';
+import type { Customer, Product, Time, Sale, ParseResult } from '@/types';
 
-// Function to convert string to number
 function parseNumber(value: string | number): number {
   if (typeof value === 'number') return value;
   if (!value) return 0;
-  
   // Replace comma with dot for Argentine number format
   const normalized = value.toString().replace(',', '.');
   const parsed = parseFloat(normalized);
@@ -38,12 +36,6 @@ function normalizeKey(key: string): string {
   return columnMap[trimmed] || key;
 }
 
-// Interface for parse result
-interface ParseResult<T> {
-  data: T[];
-  errors: any[];
-}
-
 export async function parseCSVFile<T>(file: File): Promise<ParseResult<T>> {
   return new Promise((resolve) => {
     Papa.parse(file, {
@@ -54,11 +46,9 @@ export async function parseCSVFile<T>(file: File): Promise<ParseResult<T>> {
       complete: (results) => {
         const data = results.data.map((row) => {
           const converted: Record<string, string | number> = {};
-          
             for (const [key, val] of Object.entries(row as Record<string, unknown>)) {
             // Normalize key to English
-            const englishKey = normalizeKey(key as string);
-            
+            const englishKey = normalizeKey(key as string);        
             // Convert numeric fields
             const lowerKey = englishKey.toLowerCase();
             if (lowerKey === 'sales' || lowerKey === 'costs' || lowerKey === 'units') {
@@ -69,7 +59,6 @@ export async function parseCSVFile<T>(file: File): Promise<ParseResult<T>> {
           }
           return converted as T;
         });
-        //console.log("[parser error]", results.errors);
         resolve({
           data: data,
           errors: results.errors
@@ -85,11 +74,6 @@ export async function parseCSVFile<T>(file: File): Promise<ParseResult<T>> {
     });
   });
 }
-
-type ParseResultType<T> = {
-  data: T[];
-  errors: string[];
-};
 
 export async function parseCustomers(file: File): Promise<ParseResult<Customer>> {
   return parseCSVFile<Customer>(file);
