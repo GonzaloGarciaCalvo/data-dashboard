@@ -9,6 +9,8 @@ A Next.js 16 application for visualizing sales data from CSV files with interact
 - **File Validation**: Validates file type (.csv, .cvs) and size
 - **Multi-format Support**: Accepts Spanish column names (Ventas, Costos, Unidades) or English (sales, costs, units)
 - **Data Types**: Supports Customers, Products, Time dimension, and Sales data
+- **Toggle mode switch**: Save state in localStorage
+- **Mocked data screen**
 
 ### 📈 KPI Calculations
 | KPI | Description |
@@ -21,6 +23,7 @@ A Next.js 16 application for visualizing sales data from CSV files with interact
 | Monthly Variation | % change between last 2 completed months |
 | Units Sold | Sum of all units |
 | Average Sale | Total Sales / Number of transactions |
+| Std Deviation | Standard deviation of sale amounts (shown with 2 decimal places) |
 
 ### 🎛️ Period Filtering
 Filters the data displayed based on selected period:
