@@ -14,6 +14,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const isDemo = sessionStorage.getItem("isDemo-data-dashboard");
     if (isDemo) {
+      console.log("[page.tsx] Detected isDemo");
       sessionStorage.removeItem("isDemo-data-dashboard");
       localStorage.removeItem("dashboard-storage");
       reset();

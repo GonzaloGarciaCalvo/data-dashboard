@@ -1,11 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type {
-  Customer,
-  Product,
-  Time,
   Sale,
-  CalculatedKPI,
   DashboardData,
   DashboardState,
   Theme,
@@ -57,7 +53,6 @@ export const useDashboardStore = create<DashboardState>()(
           set({ sales });
           get().calculateAll();
         } catch (error) {
-          console.error("[setSales] ERROR:", error);
           throw error;
         }
       },
@@ -116,7 +111,7 @@ export const useDashboardStore = create<DashboardState>()(
 
       setTheme: (theme: Theme) => {
         set({ theme });
-        console.log("[setTheme] New theme:", theme);
+        console.log("[setTheme] theme que llega a la func: ", theme);
         // Aplicar clase directamente al DOM
         const root = document.documentElement;
         if (theme === "system") {

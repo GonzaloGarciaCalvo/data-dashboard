@@ -4,6 +4,7 @@ import { BarChart3, Upload, Settings, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useDashboardStore } from "@/stores/dashboard";
 import { AsideButton } from "./ui/aside-buton";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   hasData: boolean;
@@ -22,7 +23,18 @@ export function Sidebar({
   sidebarOpen,
   onClose,
 }: SidebarProps) {
+
   const { theme, setTheme } = useDashboardStore();
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(
+      theme === "dark" ||
+      (theme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches)
+    );
+  }, [theme]);
 
   return (
     <>
@@ -41,7 +53,6 @@ export function Sidebar({
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
         fixed md:static inset-y-0 left-0 z-50
@@ -79,14 +90,16 @@ export function Sidebar({
             Settings
           </button> */}
           <AsideButton
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => {
+                setTheme(isDark ? "light" : "dark")
+            }}
           >
-            {theme === "dark" ? (
+            {isDark ? (
               <Sun className="h-5 w-5" />
             ) : (
               <Moon className="h-5 w-5" />
             )}
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            {isDark ? "Light Mode" : "Dark Mode"}
           </AsideButton>
         </nav>
 
